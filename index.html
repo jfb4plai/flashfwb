@@ -399,8 +399,12 @@ async function saveDeckCloud(name,langQ,langA,tts,cards){
   if(de)throw de;
   if(editId){
     const keep=cards.map(c=>c.id).filter(Boolean);
-    if(keep.length)await sb.from('cards').delete().eq('deck_id',id).not('id','in',`(${keep.map(i=>`'${i}'`).join(',')})`)
-    else await sb.from('cards').delete().eq('deck_id',id);
+    // Récupère les cartes existantes et supprime celles qui ne sont plus dans la liste
+    const{data:existing}=await sb.from('cards').select('id').eq('deck_id',id);
+    const toDelete=(existing||[]).map(c=>c.id).filter(cid=>!keep.includes(cid));
+    for(const cid of toDelete){
+      await sb.from('cards').delete().eq('id',cid);
+    }
   }
   if(cards.length){
     const{error:ce}=await sb.from('cards').upsert(cards.map((c,i)=>({id:c.id||uid(),deck_id:id,question:c.question,answer:c.answer,q_img:c.qImg||null,a_img:c.aImg||null,q_aud:c.qAud||null,a_aud:c.aAud||null,box:c.box||1,last_seen:c.lastSeen||null,position:i})));
