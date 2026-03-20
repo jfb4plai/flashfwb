@@ -186,8 +186,18 @@ label{font-size:13px;color:var(--tx2);display:block;margin-bottom:5px}
       <select id="dtts"><option value="none">Aucune</option><option value="q">Recto seul</option><option value="a" selected>Verso seul</option><option value="both">Recto + Verso</option></select>
     </div>
     <div class="fld" style="flex:1;margin-bottom:0"><label>Ordre des cartes</label>
-      <select id="dshuffle"><option value="leitner">Leitner (par boîte)</option><option value="random">Aléatoire</option></select>
+      <select id="dshuffle" onchange="toggleLeitnerOpts()"><option value="leitner">Leitner (par boîte)</option><option value="random">Aléatoire</option></select>
     </div>
+  </div>
+  <div id="leitner-opts" style="display:none;margin-bottom:12px;background:var(--bg2);border:.5px solid var(--bd);border-radius:var(--rm);padding:12px;gap:20px;flex-wrap:wrap">
+    <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--tx);cursor:pointer;margin-bottom:0">
+      <input type="checkbox" id="dno-skip"> Progression sans saut de boîte
+      <span style="font-size:11px;color:var(--tx3)">(A revoir → Presque → Maitrisé)</span>
+    </label>
+    <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--tx);cursor:pointer;margin-bottom:0">
+      <input type="checkbox" id="dweighted"> Fréquence pondérée
+      <span style="font-size:11px;color:var(--tx3)">(56% A revoir · 28% Presque · 16% Maitrisé)</span>
+    </label>
   </div>
   <div class="tabs">
     <button class="tab on" onclick="switchTab('form',this)">Saisie</button>
@@ -395,6 +405,7 @@ async function openStudentDeck(deckId){
   const{data:prog}=await sb.from('student_progress').select('card_id,box,last_seen').eq('code_id',sCodeId).eq('student_name',sName);
   const pm={};(prog||[]).forEach(p=>{pm[p.card_id]={box:p.box,lastSeen:p.last_seen}});
   const d={id:deck.id,name:deck.name,langQ:deck.lang_q,langA:deck.lang_a,tts:deck.tts,shuffle:deck.shuffle||'leitner',
+    noSkipBox:!!deck.no_skip_box,weightedReview:!!deck.weighted_review,
     cards:(cards||[]).map(c=>mapCard(c,pm[c.id]))};
   isStudent=true;
   document.getElementById('student-bar').style.display='block';
@@ -424,7 +435,7 @@ sb.auth.onAuthStateChange(async(event,session)=>{
 });
 
 async function loadDecks(){
-  const{data,error}=await sb.from('decks').select('id,name,lang_q,lang_a,tts,shuffle,created_at').order('created_at',{ascending:false});
+  const{data,error}=await sb.from('decks').select('id,name,lang_q,lang_a,tts,shuffle,no_skip_box,weighted_review,created_at').order('created_at',{ascending:false});
   if(error)throw error;
   const ids=(data||[]).map(d=>d.id);
   let allCards=[];
@@ -435,15 +446,16 @@ async function loadDecks(){
   }
   decks=(data||[]).map(d=>({
     id:d.id,name:d.name,langQ:d.lang_q,langA:d.lang_a,tts:d.tts,shuffle:d.shuffle||'leitner',
+    noSkipBox:!!d.no_skip_box,weightedReview:!!d.weighted_review,
     createdAt:new Date(d.created_at).getTime(),
     cards:allCards.filter(c=>c.deck_id===d.id).map(c=>mapCard(c,null))
   }));
   renderDecks();
 }
 
-async function saveDeckCloud(name,langQ,langA,tts,shuffle,cards){
+async function saveDeckCloud(name,langQ,langA,tts,shuffle,cards,noSkipBox,weightedReview){
   const id=editId||uid();
-  const{error:de}=await sb.from('decks').upsert({id,user_id:user.id,name,lang_q:langQ,lang_a:langA,tts,shuffle});
+  const{error:de}=await sb.from('decks').upsert({id,user_id:user.id,name,lang_q:langQ,lang_a:langA,tts,shuffle,no_skip_box:!!noSkipBox,weighted_review:!!weightedReview});
   if(de)throw de;
   if(editId){
     const{data:existing}=await sb.from('cards').select('id').eq('deck_id',id);
@@ -566,6 +578,11 @@ async function delDeck(id){
   decks=decks.filter(d=>d.id!==id);renderDecks();toast('Paquet supprimé');
 }
 
+function toggleLeitnerOpts(){
+  const mode=document.getElementById('dshuffle').value;
+  document.getElementById('leitner-opts').style.display=(mode==='leitner'||mode==='random')?'flex':'none';
+}
+
 // CREATE / EDIT
 function openCreate(id){
   editId=id;openPanels.clear();stopRec();
@@ -575,6 +592,9 @@ function openCreate(id){
   document.getElementById('dlangA').value=d?.langA||'fr-BE';
   document.getElementById('dtts').value=d?.tts||'a';
   document.getElementById('dshuffle').value=d?.shuffle||'leitner';
+  document.getElementById('dno-skip').checked=d?.noSkipBox||false;
+  document.getElementById('dweighted').checked=d?.weightedReview||false;
+  toggleLeitnerOpts();
   editCards=d?d.cards.map(c=>({...c})):[];
   document.getElementById('md-input').value='';
   document.getElementById('share-area').innerHTML='';
@@ -793,15 +813,15 @@ function openClaude(){window.open('https://claude.ai/new?q='+encodeURIComponent(
 function copyPrompt(){navigator.clipboard.writeText(buildPrompt()).then(()=>toast('Prompt copié !'))}
 
 // SAVE
-function getDeckData(){return{name:document.getElementById('dname').value.trim(),langQ:document.getElementById('dlangQ').value,langA:document.getElementById('dlangA').value,tts:document.getElementById('dtts').value,shuffle:document.getElementById('dshuffle').value,cards:editCards.filter(c=>c.question.trim()&&c.answer.trim())}}
+function getDeckData(){return{name:document.getElementById('dname').value.trim(),langQ:document.getElementById('dlangQ').value,langA:document.getElementById('dlangA').value,tts:document.getElementById('dtts').value,shuffle:document.getElementById('dshuffle').value,noSkipBox:document.getElementById('dno-skip').checked,weightedReview:document.getElementById('dweighted').checked,cards:editCards.filter(c=>c.question.trim()&&c.answer.trim())}}
 async function saveDeck(){
-  const{name,langQ,langA,tts,shuffle,cards}=getDeckData();
+  const{name,langQ,langA,tts,shuffle,noSkipBox,weightedReview,cards}=getDeckData();
   if(!name){toast('Donne un nom au paquet');return}if(!cards.length){toast('Ajoute au moins une carte');return}
-  showSaving(true);try{const id=await saveDeckCloud(name,langQ,langA,tts,shuffle,cards);editId=id;await loadDecks();toast('Paquet sauvegardé ☁')}catch(e){toast('Erreur : '+e.message)}showSaving(false);
+  showSaving(true);try{const id=await saveDeckCloud(name,langQ,langA,tts,shuffle,cards,noSkipBox,weightedReview);editId=id;await loadDecks();toast('Paquet sauvegardé ☁')}catch(e){toast('Erreur : '+e.message)}showSaving(false);
 }
 async function saveThenStudy(){
-  const{name,langQ,langA,tts,shuffle,cards}=getDeckData();if(!name||!cards.length){toast(!name?'Donne un nom':'Ajoute des cartes');return}
-  showSaving(true);try{const id=await saveDeckCloud(name,langQ,langA,tts,shuffle,cards);editId=id;await loadDecks();openStudy(id)}catch(e){toast('Erreur : '+e.message)}showSaving(false);
+  const{name,langQ,langA,tts,shuffle,noSkipBox,weightedReview,cards}=getDeckData();if(!name||!cards.length){toast(!name?'Donne un nom':'Ajoute des cartes');return}
+  showSaving(true);try{const id=await saveDeckCloud(name,langQ,langA,tts,shuffle,cards,noSkipBox,weightedReview);editId=id;await loadDecks();openStudy(id)}catch(e){toast('Erreur : '+e.message)}showSaving(false);
 }
 function shareDeck(){
   const{name,langQ,langA,tts,cards}=getDeckData();if(!name||!cards.length){toast('Sauvegarde d\'abord');return}
@@ -815,13 +835,28 @@ function shareDeck(){
 function shuffleArr(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]]}return arr}
 function buildQ(){
   const mode=studyDeck?.shuffle||'leitner';
-  if(mode==='random'){studyQueue=shuffleArr([...studyCards.keys()])}
+  const weighted=studyDeck?.weightedReview||false;
+  if(mode==='random'&&!weighted){studyQueue=shuffleArr([...studyCards.keys()])}
   else{
     const b1=shuffleArr(studyCards.map((_,i)=>i).filter(i=>studyCards[i].box===1));
     const b2=shuffleArr(studyCards.map((_,i)=>i).filter(i=>studyCards[i].box===2));
     const b3=shuffleArr(studyCards.map((_,i)=>i).filter(i=>studyCards[i].box===3));
-    studyQueue=[...b1,...b2,...b3];
+    if(weighted){
+      // Pondération 56/28/16 : on pioche proportionnellement depuis chaque boîte
+      const total=studyCards.length;
+      const t1=Math.max(1,Math.round(total*0.56));
+      const t2=Math.max(1,Math.round(total*0.28));
+      const t3=Math.max(1,total-t1-t2);
+      // Répéter les cartes si nécessaire pour atteindre le quota, sinon prendre ce qu'il y a
+      const pick=(arr,n)=>{if(!arr.length)return[];const r=[];while(r.length<n)r.push(...arr);return shuffleArr(r.slice(0,n))};
+      const q=[...pick(b1,Math.min(t1,b1.length?t1:0)),...pick(b2,Math.min(t2,b2.length?t2:0)),...pick(b3,Math.min(t3,b3.length?t3:0))];
+      studyQueue=mode==='random'?shuffleArr(q):q;
+    }else{
+      studyQueue=mode==='random'?shuffleArr([...b1,...b2,...b3]):[...b1,...b2,...b3];
+    }
   }
+  // Dédupliquer (une carte ne passe qu'une fois par session)
+  const seen=new Set();studyQueue=studyQueue.filter(i=>{if(seen.has(i))return false;seen.add(i);return true});
   studyIdx=0;
 }
 function updBoxes(){[1,2,3].forEach(b=>{const n=studyCards.filter(c=>c.box===b).length;document.getElementById('b'+b).textContent=n;document.getElementById('cb'+b).textContent=n})}
@@ -854,8 +889,17 @@ function flipCard(){
 }
 
 async function rate(r){
-  const card=studyCards[studyQueue[studyIdx]];card.box=r;card.lastSeen=new Date().toISOString();studyIdx++;stopStudyAudio();
-  await updateProgress(card.id,r,card.lastSeen);
+  const card=studyCards[studyQueue[studyIdx]];
+  const noSkip=studyDeck?.noSkipBox||false;
+  let newBox=r;
+  if(noSkip){
+    // Progression max = boîte actuelle + 1 (pas de saut)
+    // Régression libre (on peut retomber en boîte 1 directement)
+    if(r>card.box)newBox=card.box+1;
+    if(newBox>3)newBox=3;
+  }
+  card.box=newBox;card.lastSeen=new Date().toISOString();studyIdx++;stopStudyAudio();
+  await updateProgress(card.id,newBox,card.lastSeen);
   if(!isStudent){const upd={...studyDeck,cards:studyCards};decks=decks.map(d=>d.id===studyDeck.id?upd:d);studyDeck=upd}
   if(studyIdx>=studyQueue.length)showComplete();else renderStudy();
 }
