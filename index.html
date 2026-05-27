@@ -814,16 +814,33 @@ function copyPrompt(){navigator.clipboard.writeText(buildPrompt()).then(()=>toas
 
 // SAVE
 function getDeckData(){return{name:document.getElementById('dname').value.trim(),langQ:document.getElementById('dlangQ').value,langA:document.getElementById('dlangA').value,tts:document.getElementById('dtts').value,shuffle:document.getElementById('dshuffle').value,noSkipBox:document.getElementById('dno-skip').checked,weightedReview:document.getElementById('dweighted').checked,cards:editCards.filter(c=>c.question.trim()&&c.answer.trim())}}
+function withTimeout(promise,ms){
+  return Promise.race([promise,new Promise((_,rej)=>setTimeout(()=>rej(new Error('Délai dépassé ('+ms/1000+'s) — projet Supabase en veille ou connexion perdue')),ms))]);
+}
 async function saveDeck(){
   if(!user){toast('Connecte-toi pour sauvegarder');return}
   const{name,langQ,langA,tts,shuffle,noSkipBox,weightedReview,cards}=getDeckData();
   if(!name){toast('Donne un nom au paquet');return}if(!cards.length){toast('Ajoute au moins une carte');return}
-  showSaving(true);try{const id=await saveDeckCloud(name,langQ,langA,tts,shuffle,cards,noSkipBox,weightedReview);editId=id;await loadDecks();toast('Paquet sauvegardé ☁')}catch(e){toast('Erreur : '+(e?.message||String(e)))}finally{showSaving(false)}
+  showSaving(true);
+  try{
+    const id=await withTimeout(saveDeckCloud(name,langQ,langA,tts,shuffle,cards,noSkipBox,weightedReview),20000);
+    editId=id;await loadDecks();toast('Paquet sauvegardé ☁');
+  }catch(e){
+    console.error('[FlashFWB] saveDeck error:',e);
+    toast('Erreur : '+(e?.message||String(e)));
+  }finally{showSaving(false)}
 }
 async function saveThenStudy(){
   if(!user){toast('Connecte-toi pour sauvegarder');return}
   const{name,langQ,langA,tts,shuffle,noSkipBox,weightedReview,cards}=getDeckData();if(!name||!cards.length){toast(!name?'Donne un nom':'Ajoute des cartes');return}
-  showSaving(true);try{const id=await saveDeckCloud(name,langQ,langA,tts,shuffle,cards,noSkipBox,weightedReview);editId=id;await loadDecks();openStudy(id)}catch(e){toast('Erreur : '+(e?.message||String(e)))}finally{showSaving(false)}
+  showSaving(true);
+  try{
+    const id=await withTimeout(saveDeckCloud(name,langQ,langA,tts,shuffle,cards,noSkipBox,weightedReview),20000);
+    editId=id;await loadDecks();openStudy(id);
+  }catch(e){
+    console.error('[FlashFWB] saveThenStudy error:',e);
+    toast('Erreur : '+(e?.message||String(e)));
+  }finally{showSaving(false)}
 }
 async function shareDeck(){
   if(!user){toast('Connecte-toi pour partager avec un QR code');return}
