@@ -815,20 +815,30 @@ function copyPrompt(){navigator.clipboard.writeText(buildPrompt()).then(()=>toas
 // SAVE
 function getDeckData(){return{name:document.getElementById('dname').value.trim(),langQ:document.getElementById('dlangQ').value,langA:document.getElementById('dlangA').value,tts:document.getElementById('dtts').value,shuffle:document.getElementById('dshuffle').value,noSkipBox:document.getElementById('dno-skip').checked,weightedReview:document.getElementById('dweighted').checked,cards:editCards.filter(c=>c.question.trim()&&c.answer.trim())}}
 async function saveDeck(){
+  if(!user){toast('Connecte-toi pour sauvegarder');return}
   const{name,langQ,langA,tts,shuffle,noSkipBox,weightedReview,cards}=getDeckData();
   if(!name){toast('Donne un nom au paquet');return}if(!cards.length){toast('Ajoute au moins une carte');return}
-  showSaving(true);try{const id=await saveDeckCloud(name,langQ,langA,tts,shuffle,cards,noSkipBox,weightedReview);editId=id;await loadDecks();toast('Paquet sauvegardé ☁')}catch(e){toast('Erreur : '+e.message)}showSaving(false);
+  showSaving(true);try{const id=await saveDeckCloud(name,langQ,langA,tts,shuffle,cards,noSkipBox,weightedReview);editId=id;await loadDecks();toast('Paquet sauvegardé ☁')}catch(e){toast('Erreur : '+(e?.message||String(e)))}finally{showSaving(false)}
 }
 async function saveThenStudy(){
+  if(!user){toast('Connecte-toi pour sauvegarder');return}
   const{name,langQ,langA,tts,shuffle,noSkipBox,weightedReview,cards}=getDeckData();if(!name||!cards.length){toast(!name?'Donne un nom':'Ajoute des cartes');return}
-  showSaving(true);try{const id=await saveDeckCloud(name,langQ,langA,tts,shuffle,cards,noSkipBox,weightedReview);editId=id;await loadDecks();openStudy(id)}catch(e){toast('Erreur : '+e.message)}showSaving(false);
+  showSaving(true);try{const id=await saveDeckCloud(name,langQ,langA,tts,shuffle,cards,noSkipBox,weightedReview);editId=id;await loadDecks();openStudy(id)}catch(e){toast('Erreur : '+(e?.message||String(e)))}finally{showSaving(false)}
 }
-function shareDeck(){
-  const{name,langQ,langA,tts,cards}=getDeckData();if(!name||!cards.length){toast('Sauvegarde d\'abord');return}
-  const id=editId||uid();
-  const enc=btoa(unescape(encodeURIComponent(JSON.stringify({id,name,langQ,langA,tts,cards:cards.map(c=>({...c,qImg:null,aImg:null,qAud:null,aAud:null}))}))));
-  const url=window.location.href.split('?')[0].split('#')[0]+'#share='+enc;
-  document.getElementById('share-area').innerHTML='<div style="margin-top:12px;font-size:13px;color:var(--tx2);margin-bottom:6px">Lien de partage (texte uniquement) :</div><div class="surl">'+esc(url.length>200?url.substring(0,200)+'…':url)+'</div><button class="btn bp" style="margin-top:8px" onclick=\'navigator.clipboard.writeText("'+url+'").then(()=>toast("Lien copié !"))\'>Copier le lien</button>';
+async function shareDeck(){
+  if(!user){toast('Connecte-toi pour partager avec un QR code');return}
+  const d=getDeckData();
+  if(!d.name){toast('Donne un nom au paquet');return}
+  if(!d.cards.length){toast('Ajoute des cartes d\'abord');return}
+  if(!editId){
+    showSaving(true);
+    try{
+      const id=await saveDeckCloud(d.name,d.langQ,d.langA,d.tts,d.shuffle,d.cards,d.noSkipBox,d.weightedReview);
+      editId=id;await loadDecks();
+    }catch(e){toast('Erreur sauvegarde : '+(e?.message||String(e)));return}
+    finally{showSaving(false)}
+  }
+  openCodeModal(editId,d.name);
 }
 
 // STUDY
