@@ -440,7 +440,7 @@ async function loadDecks(){
   const ids=(data||[]).map(d=>d.id);
   let allCards=[];
   if(ids.length){
-    const{data:cd,error:ce}=await sb.from('cards').select('*').in('deck_id',ids).order('position');
+    const{data:cd,error:ce}=await sb.from('cards').select('id,deck_id,question,answer,q_img,a_img,q_aud,a_aud,box,last_seen,position').in('deck_id',ids).order('position');
     if(ce)throw ce;
     allCards=cd||[];
   }
@@ -820,19 +820,21 @@ function getDeckData(){return{name:document.getElementById('dname').value.trim()
 function withTimeout(promise,ms){
   return Promise.race([promise,new Promise((_,rej)=>setTimeout(()=>rej(new Error('Délai dépassé ('+ms/1000+'s) — ouvre DevTools > Console pour voir où ça bloque')),ms))]);
 }
+function updateLocalDeck(id,name,langQ,langA,tts,shuffle,noSkipBox,weightedReview,cards){
+  const saved={id,name,langQ,langA,tts,shuffle,noSkipBox,weightedReview,createdAt:Date.now(),cards:[...cards]};
+  const idx=decks.findIndex(d=>d.id===id);
+  if(idx>=0)decks[idx]=saved;else decks.unshift(saved);
+}
 async function saveDeck(){
   if(!user){toast('Connecte-toi pour sauvegarder');return}
   const{name,langQ,langA,tts,shuffle,noSkipBox,weightedReview,cards}=getDeckData();
   if(!name){toast('Donne un nom au paquet');return}if(!cards.length){toast('Ajoute au moins une carte');return}
   showSaving(true);
   try{
-    await withTimeout((async()=>{
-      const id=await saveDeckCloud(name,langQ,langA,tts,shuffle,cards,noSkipBox,weightedReview);
-      editId=id;
-      console.log('[SAVE] loadDecks...');
-      await loadDecks();
-      toast('Paquet sauvegardé ☁');
-    })(),30000);
+    const id=await withTimeout(saveDeckCloud(name,langQ,langA,tts,shuffle,cards,noSkipBox,weightedReview),30000);
+    editId=id;
+    updateLocalDeck(id,name,langQ,langA,tts,shuffle,noSkipBox,weightedReview,cards);
+    toast('Paquet sauvegardé ☁');
   }catch(e){
     console.error('[FlashFWB] saveDeck error:',e);
     toast('Erreur : '+(e?.message||String(e)));
@@ -843,12 +845,10 @@ async function saveThenStudy(){
   const{name,langQ,langA,tts,shuffle,noSkipBox,weightedReview,cards}=getDeckData();if(!name||!cards.length){toast(!name?'Donne un nom':'Ajoute des cartes');return}
   showSaving(true);
   try{
-    await withTimeout((async()=>{
-      const id=await saveDeckCloud(name,langQ,langA,tts,shuffle,cards,noSkipBox,weightedReview);
-      editId=id;
-      await loadDecks();
-      openStudy(id);
-    })(),30000);
+    const id=await withTimeout(saveDeckCloud(name,langQ,langA,tts,shuffle,cards,noSkipBox,weightedReview),30000);
+    editId=id;
+    updateLocalDeck(id,name,langQ,langA,tts,shuffle,noSkipBox,weightedReview,cards);
+    openStudy(id);
   }catch(e){
     console.error('[FlashFWB] saveThenStudy error:',e);
     toast('Erreur : '+(e?.message||String(e)));
