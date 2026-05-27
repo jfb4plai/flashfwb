@@ -815,7 +815,7 @@ function copyPrompt(){navigator.clipboard.writeText(buildPrompt()).then(()=>toas
 // SAVE
 function getDeckData(){return{name:document.getElementById('dname').value.trim(),langQ:document.getElementById('dlangQ').value,langA:document.getElementById('dlangA').value,tts:document.getElementById('dtts').value,shuffle:document.getElementById('dshuffle').value,noSkipBox:document.getElementById('dno-skip').checked,weightedReview:document.getElementById('dweighted').checked,cards:editCards.filter(c=>c.question.trim()&&c.answer.trim())}}
 function withTimeout(promise,ms){
-  return Promise.race([promise,new Promise((_,rej)=>setTimeout(()=>rej(new Error('Délai dépassé ('+ms/1000+'s) — projet Supabase en veille ou connexion perdue')),ms))]);
+  return Promise.race([promise,new Promise((_,rej)=>setTimeout(()=>rej(new Error('Délai dépassé ('+ms/1000+'s) — projet Supabase en veille. Va sur supabase.com > ton projet > Restore, puis réessaie.')),ms))]);
 }
 async function saveDeck(){
   if(!user){toast('Connecte-toi pour sauvegarder');return}
