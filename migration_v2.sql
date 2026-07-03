@@ -56,7 +56,12 @@ create policy "Enseignant : voir progression" on public.student_progress
 
 drop policy if exists "Eleve : sa progression" on public.student_progress;
 create policy "Eleve : sa progression" on public.student_progress
-  for all using (true) with check (true);
+  for all using (
+    exists (select 1 from public.class_codes where id = student_progress.code_id and active = true)
+  )
+  with check (
+    exists (select 1 from public.class_codes where id = student_progress.code_id and active = true)
+  );
 
 -- Index
 create index if not exists idx_class_codes_deck on public.class_codes(deck_id);

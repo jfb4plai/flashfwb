@@ -329,7 +329,7 @@ let csvParsed=null,activeCodeId=null,activeCodeStr='';
 const LANGS=[{v:'fr-BE',l:'Français – BE'},{v:'fr-FR',l:'Français – FR'},{v:'en-GB',l:'Anglais (UK)'},{v:'en-US',l:'Anglais (US)'},{v:'nl-BE',l:'Néerlandais – BE'},{v:'nl-NL',l:'Néerlandais – NL'},{v:'de-DE',l:'Allemand'},{v:'es-ES',l:'Espagnol'},{v:'it-IT',l:'Italien'},{v:'pt-PT',l:'Portugais'},{v:'ar',l:'Arabe'},{v:'zh-CN',l:'Chinois'},{v:'ja-JP',l:'Japonais'}];
 
 function uid(){return'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return(c==='x'?r:(r&3|8)).toString(16)})}
-function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
 function toast(m){const el=document.getElementById('toast-el');el.textContent=m;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2800)}
 function showV(v){document.querySelectorAll('.view').forEach(e=>e.classList.remove('active'));document.getElementById(v).classList.add('active')}
 function populateLangSelects(){const h=LANGS.map(o=>`<option value="${o.v}">${o.l}</option>`).join('');document.querySelectorAll('.lang-sel').forEach(s=>s.innerHTML=h)}
@@ -954,7 +954,6 @@ function restartStudy(){buildQ();document.getElementById('cview').style.display=
 
 // INIT
 (async()=>{
-  try{Object.keys(localStorage).filter(k=>k.includes('supabase')||k.includes('sb-')).forEach(k=>localStorage.removeItem(k))}catch{}
   populateLangSelects();
   if(window.speechSynthesis){window.speechSynthesis.getVoices();window.speechSynthesis.onvoiceschanged=()=>{}}
   const hash=window.location.hash.slice(1);const params=new URLSearchParams(hash);
