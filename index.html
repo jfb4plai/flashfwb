@@ -158,6 +158,20 @@ label{font-size:13px;color:var(--tx2);display:block;margin-bottom:5px}
   </div>
 </div>
 
+<!-- RESET PASSWORD -->
+<div id="v-reset" class="view">
+  <div class="hdr" style="border:none;margin-bottom:0;padding-bottom:8px">
+    <span class="logo">Flash<b>FWB</b></span>
+    <img src="plai-logo.jpg" alt="PLAI" style="height:36px;object-fit:contain;margin-left:auto">
+  </div>
+  <div class="auth-box">
+    <h2>Nouveau mot de passe</h2>
+    <p>Choisis un nouveau mot de passe pour ton compte.</p>
+    <div class="fld"><label>Nouveau mot de passe</label><input type="password" id="reset-pass" placeholder="Minimum 6 caractères"></div>
+    <button class="btn bp bw" id="reset-btn" onclick="updatePwd()">Enregistrer</button>
+  </div>
+</div>
+
 <!-- HOME -->
 <div id="vh" class="view">
   <div class="hdr">
@@ -318,12 +332,12 @@ label{font-size:13px;color:var(--tx2);display:block;margin-bottom:5px}
 <script>
 const SUPABASE_URL='https://otiorljbujqzruulmqrs.supabase.co';
 const SUPABASE_ANON_KEY='sb_publishable_txhpqAZpx_Yth8zFQ3J0QQ_f9QVU0nE';
-const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{autoRefreshToken:true,persistSession:true,detectSessionInUrl:false,lock:async(n,t,fn)=>fn()}});
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{autoRefreshToken:true,persistSession:true,detectSessionInUrl:true,lock:async(n,t,fn)=>fn()}});
 
 let user=null,decks=[],editId=null,editCards=[];
 let studyDeck=null,studyQueue=[],studyIdx=0,studyCards=[];
 let openPanels=new Set(),imgCtx=null,activeRec=null,sAudio=null,toastTimer=null;
-let authMode='login',isStudent=false,sName='',sCodeId='',sCodeStr='';
+let authMode='login',isStudent=false,sName='',sCodeId='',sCodeStr='',isRecovery=false;
 let csvParsed=null,activeCodeId=null,activeCodeStr='';
 
 const LANGS=[{v:'fr-BE',l:'Français – BE'},{v:'fr-FR',l:'Français – FR'},{v:'en-GB',l:'Anglais (UK)'},{v:'en-US',l:'Anglais (US)'},{v:'nl-BE',l:'Néerlandais – BE'},{v:'nl-NL',l:'Néerlandais – NL'},{v:'de-DE',l:'Allemand'},{v:'es-ES',l:'Espagnol'},{v:'it-IT',l:'Italien'},{v:'pt-PT',l:'Portugais'},{v:'ar',l:'Arabe'},{v:'zh-CN',l:'Chinois'},{v:'ja-JP',l:'Japonais'}];
@@ -360,7 +374,7 @@ async function doAuth(){
   try{
     if(authMode==='register'){
       const name=document.getElementById('auth-name').value.trim();
-      const{error}=await sb.auth.signUp({email,password:pass,options:{data:{name}}});
+      const{error}=await sb.auth.signUp({email,password:pass,options:{data:{name},emailRedirectTo:window.location.origin}});
       if(error){toast(error.message);return}
       toast('Compte créé ! Vérifie tes emails.');
     }else{
@@ -376,9 +390,23 @@ async function logout(){stopRec();stopStudyAudio();await sb.auth.signOut();decks
 async function resetPwd(){
   const email=document.getElementById('auth-email').value.trim();
   if(!email){toast('Saisis ton email d\'abord');return}
-  const{error}=await sb.auth.resetPasswordForEmail(email);
+  const{error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:window.location.origin});
   if(error){toast(error.message);return}
   toast('Email de réinitialisation envoyé !');
+}
+
+async function updatePwd(){
+  const pass=document.getElementById('reset-pass').value;
+  if(pass.length<6){toast('6 caractères minimum');return}
+  const btn=document.getElementById('reset-btn');
+  btn.disabled=true;btn.innerHTML='<div class="spin"></div>';
+  const{error}=await sb.auth.updateUser({password:pass});
+  btn.disabled=false;btn.textContent='Enregistrer';
+  if(error){toast(error.message);return}
+  isRecovery=false;
+  toast('Mot de passe mis à jour !');
+  try{await loadDecks()}catch(e){toast('Erreur chargement : '+e.message)}
+  showV('vh');
 }
 
 async function studentLogin(){
@@ -426,12 +454,13 @@ function mapCard(c,prog){
 
 sb.auth.onAuthStateChange(async(event,session)=>{
   user=session?.user||null;
-  if(user){
+  if(event==='PASSWORD_RECOVERY'){isRecovery=true;showV('v-reset');return}
+  if(user&&!isRecovery){
     document.getElementById('user-name').textContent=user.user_metadata?.name||user.email?.split('@')[0]||'';
     isStudent=false;
     try{await loadDecks()}catch(e){toast('Erreur chargement : '+e.message)}
     showV('vh');
-  }else if(!isStudent){showV('v-auth')}
+  }else if(!user&&!isStudent){showV('v-auth')}
 });
 
 async function loadDecks(){
