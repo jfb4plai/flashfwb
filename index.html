@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FlashFWB</title>
+<title>FlashPLAI</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
@@ -159,7 +159,7 @@ label{font-size:13px;color:var(--tx2);display:block;margin-bottom:5px}
 <!-- AUTH -->
 <div id="v-auth" class="view active">
   <div class="hdr" style="border:none;margin-bottom:0;padding-bottom:8px">
-    <span class="logo">Flash<b>FWB</b></span>
+    <span class="logo">Flash<b>PLAI</b></span>
     <img src="plai-logo.jpg" alt="PLAI" style="height:36px;object-fit:contain;margin-left:auto">
   </div>
   <div id="auth-landing">
@@ -215,7 +215,7 @@ label{font-size:13px;color:var(--tx2);display:block;margin-bottom:5px}
 <!-- RESET PASSWORD -->
 <div id="v-reset" class="view">
   <div class="hdr" style="border:none;margin-bottom:0;padding-bottom:8px">
-    <span class="logo">Flash<b>FWB</b></span>
+    <span class="logo">Flash<b>PLAI</b></span>
     <img src="plai-logo.jpg" alt="PLAI" style="height:36px;object-fit:contain;margin-left:auto">
   </div>
   <div class="auth-box">
@@ -229,7 +229,7 @@ label{font-size:13px;color:var(--tx2);display:block;margin-bottom:5px}
 <!-- HOME -->
 <div id="vh" class="view">
   <div class="hdr">
-    <span class="logo">Flash<b>FWB</b></span>
+    <span class="logo">Flash<b>PLAI</b></span>
     <img src="plai-logo.jpg" alt="PLAI" style="height:32px;object-fit:contain">
     <span id="user-name" class="hsub"></span>
     <button class="btn" style="padding:5px 10px;font-size:12px;margin-left:8px" onclick="logout()">Déconnexion</button>
@@ -242,7 +242,7 @@ label{font-size:13px;color:var(--tx2);display:block;margin-bottom:5px}
 <div id="vc" class="view">
   <div class="hdr">
     <button class="bback" onclick="goHome()">← Retour</button>
-    <span class="logo">Flash<b>FWB</b></span>
+    <span class="logo">Flash<b>PLAI</b></span>
     <img src="plai-logo.jpg" alt="PLAI" style="height:28px;object-fit:contain">
     <div class="save-ind" id="save-ind" style="display:none"><div class="spin"></div> Sauvegarde…</div>
   </div>
@@ -351,7 +351,7 @@ label{font-size:13px;color:var(--tx2);display:block;margin-bottom:5px}
 <div id="vr" class="view">
   <div class="hdr">
     <button class="bback" onclick="goHome()">← Retour</button>
-    <span class="logo">Flash<b>FWB</b></span>
+    <span class="logo">Flash<b>PLAI</b></span>
     <img src="plai-logo.jpg" alt="PLAI" style="height:28px;object-fit:contain">
     <span id="rtitle" class="hsub"></span>
   </div>
@@ -366,7 +366,7 @@ label{font-size:13px;color:var(--tx2);display:block;margin-bottom:5px}
     <p id="qr-deck-name" style="font-size:13px;color:var(--tx2);margin-bottom:8px"></p>
     <div class="code-badge" id="qr-code-text"></div>
     <div id="qr-container" style="display:flex;justify-content:center;margin:12px 0"></div>
-    <p style="font-size:12px;color:var(--tx2);text-align:center;margin-bottom:12px">Les élèves scannent le QR code ou saisissent le code sur <strong>flashfwb-cd2m.vercel.app</strong></p>
+    <p style="font-size:12px;color:var(--tx2);text-align:center;margin-bottom:12px">Les élèves scannent le QR code ou saisissent le code sur <strong>flashfwb.vercel.app</strong></p>
     <div style="display:flex;gap:8px;margin-bottom:10px">
       <button class="btn bp" style="flex:1" onclick="copyCode()">Copier le code</button>
       <button class="btn" style="flex:1" onclick="printQR()">Imprimer</button>
@@ -607,7 +607,7 @@ function copyCode(){navigator.clipboard.writeText(activeCodeStr).then(()=>toast(
 function printQR(){
   const canvas=document.getElementById('qr-container').querySelector('canvas');if(!canvas)return;
   const w=window.open('','_blank');
-  w.document.write('<html><body style="text-align:center;font-family:sans-serif;padding:40px"><h2>FlashFWB — Code de classe</h2><p style="margin:8px 0 16px">'+esc(document.getElementById('qr-deck-name').textContent)+'</p><img src="'+canvas.toDataURL()+'" style="width:200px;height:200px"><br><div style="font-size:28px;font-weight:700;letter-spacing:4px;margin:12px 0;font-family:monospace">'+activeCodeStr+'</div><p style="color:#666">flashfwb-cd2m.vercel.app</p></body></html>');
+  w.document.write('<html><body style="text-align:center;font-family:sans-serif;padding:40px"><h2>FlashPLAI — Code de classe</h2><p style="margin:8px 0 16px">'+esc(document.getElementById('qr-deck-name').textContent)+'</p><img src="'+canvas.toDataURL()+'" style="width:200px;height:200px"><br><div style="font-size:28px;font-weight:700;letter-spacing:4px;margin:12px 0;font-family:monospace">'+activeCodeStr+'</div><p style="color:#666">flashfwb.vercel.app</p></body></html>');
   w.document.close();w.print();
 }
 async function deactivateCode(){
