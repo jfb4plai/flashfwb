@@ -178,7 +178,7 @@ body.dys .fctxt{line-height:1.7;font-size:20px}
 .fml-prev:empty{display:none}
 math-field{width:100%;font-size:28px;padding:8px 12px;border:.5px solid var(--bd2);border-radius:var(--rm);background:var(--bg);color:var(--tx);display:block}
 .actbar{position:sticky;bottom:0;display:flex;gap:8px;padding:10px 0;margin-top:16px;background:var(--bg);border-top:.5px solid var(--bd);z-index:5}
-@media(max-width:700px){.actbar{padding-right:150px}}
+body.editing .dys-fab{bottom:70px}
 .dsum{font-size:14px;color:var(--tx2);margin:-4px 0 12px;line-height:1.5}
 .dsum button{background:none;border:none;color:var(--tx);text-decoration:underline;cursor:pointer;font-size:14px;padding:0 0 0 4px}
 .shb{background:var(--bg2);border:.5px solid var(--bd);border-radius:var(--rm);padding:12px;margin-bottom:12px}
@@ -207,6 +207,13 @@ math-field{width:100%;font-size:28px;padding:8px 12px;border:.5px solid var(--bd
 .cs-w{color:#791F1F;font-size:16px}.cs-m{color:#633806;font-size:14px}.cs-c{color:var(--tx3);font-size:14px}
 .fold-row{display:none;gap:8px;margin-bottom:8px}
 .cright .cdel{min-width:32px;min-height:32px}
+/* Cibles tactiles : 44 px minimum sur mobile et écrans tactiles (icônes secondaires : 40 px) */
+@media (max-width:700px),(pointer:coarse){
+  .btn,.bback,.tab,.ib,.csum,.fml-btn,.auth-tab,.auth-back,input[type=text],input[type=email],input[type=password],select{min-height:44px}
+  .cright .cdel,.cdel,.cmtog{min-width:40px;min-height:40px}
+  .dsum button{min-height:44px;padding:0 8px}
+  input[type=checkbox]{width:22px;height:22px}
+}
 </style>
 </head>
 <body>
@@ -577,7 +584,7 @@ function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace
 function setDys(on){document.body.classList.toggle('dys',on);const b=document.getElementById('dys-toggle');if(b)b.setAttribute('aria-pressed',on?'true':'false')}
 function toggleDys(){const on=!document.body.classList.contains('dys');setDys(on);try{localStorage.setItem('flashplai_dys',on?'1':'0')}catch{}}
 function toast(m){const el=document.getElementById('toast-el');el.textContent=m;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2800)}
-function showV(v){document.querySelectorAll('.view').forEach(e=>e.classList.remove('active'));document.getElementById(v).classList.add('active')}
+function showV(v){document.querySelectorAll('.view').forEach(e=>e.classList.remove('active'));document.getElementById(v).classList.add('active');document.body.classList.toggle('editing',v==='vc')}
 function populateLangSelects(){const h=LANGS.map(o=>`<option value="${o.v}">${o.l}</option>`).join('');document.querySelectorAll('.lang-sel').forEach(s=>s.innerHTML=h)}
 function showSaving(v){const el=document.getElementById('save-ind');if(el)el.style.display=v?'flex':'none'}
 function goHome(){stopRec();stopStudyAudio();showV('vh');renderDecks()}
