@@ -177,6 +177,14 @@ body.dys .fctxt{line-height:1.7;font-size:20px}
 .fml-prev{margin-top:6px;padding:8px 12px;border:.5px dashed var(--bd2);border-radius:var(--rm);font-size:16px;line-height:1.6;color:var(--tx2)}
 .fml-prev:empty{display:none}
 math-field{width:100%;font-size:28px;padding:8px 12px;border:.5px solid var(--bd2);border-radius:var(--rm);background:var(--bg);color:var(--tx);display:block}
+.actbar{position:sticky;bottom:0;display:flex;gap:8px;padding:10px 0;margin-top:16px;background:var(--bg);border-top:.5px solid var(--bd);z-index:5}
+@media(max-width:700px){.actbar{padding-right:150px}}
+.dsum{font-size:14px;color:var(--tx2);margin:-4px 0 12px;line-height:1.5}
+.dsum button{background:none;border:none;color:var(--tx);text-decoration:underline;cursor:pointer;font-size:14px;padding:0 0 0 4px}
+.shb{background:var(--bg2);border:.5px solid var(--bd);border-radius:var(--rm);padding:12px;margin-bottom:12px}
+.shb h4{font-size:16px;font-weight:600;margin-bottom:4px}
+.shb .row{gap:8px;margin-top:8px}
+#main-tabs .tab{font-size:16px;padding:10px 9px}
 </style>
 </head>
 <body>
@@ -274,6 +282,14 @@ math-field{width:100%;font-size:28px;padding:8px 12px;border:.5px solid var(--bd
     <div class="save-ind" id="save-ind" style="display:none"><div class="spin"></div> Sauvegarde…</div>
   </div>
   <div class="fld"><label>Nom du paquet</label><input type="text" id="dname" placeholder="ex : Vocabulaire anglais – Cycle 2"></div>
+  <div class="dsum" id="deck-summary"></div>
+  <div class="tabs" id="main-tabs" role="tablist">
+    <button class="tab on" role="tab" aria-selected="true" data-main="cartes" onclick="switchMain('cartes')">Cartes <span id="tcount"></span></button>
+    <button class="tab" role="tab" aria-selected="false" data-main="reglages" onclick="switchMain('reglages')">Réglages</button>
+    <button class="tab" role="tab" aria-selected="false" data-main="lot" onclick="switchMain('lot')">Importer</button>
+    <button class="tab" role="tab" aria-selected="false" data-main="partager" onclick="switchMain('partager')">Partager</button>
+  </div>
+  <div id="pane-reglages" style="display:none">
   <div class="row" style="margin-bottom:12px;gap:10px">
     <div class="fld" style="flex:1 1 140px;margin-bottom:0"><label>Langue recto</label><select id="dlangQ" class="lang-sel"></select></div>
     <div class="fld" style="flex:1 1 140px;margin-bottom:0"><label>Langue verso</label><select id="dlangA" class="lang-sel"></select></div>
@@ -300,13 +316,17 @@ math-field{width:100%;font-size:28px;padding:8px 12px;border:.5px solid var(--bd
       <small class="help">Une carte « Presque » revient après 1 jour, une carte « Maîtrisé » après 3 jours ; une carte « A revoir » est toujours proposée. Ordre Leitner seulement. Ces délais sont des repères simples, pas des valeurs tirées d'une étude : adaptez-les à votre séquence.</small>
     </div>
   </div>
-  <div class="tabs">
-    <button class="tab on" onclick="switchTab('form',this)">Saisie</button>
-    <button class="tab" onclick="switchTab('md',this)">Markdown</button>
-    <button class="tab" onclick="switchTab('csv',this)">CSV</button>
-    <button class="tab" onclick="switchTab('claude',this)">Claude</button>
   </div>
+  <div id="pane-cartes">
   <div id="tab-form"><div id="ai-note" class="ai-note" style="display:none"><strong>Cartes importées à relire.</strong> Si elles viennent d'une IA, elles peuvent contenir des erreurs ou rester génériques. Relire chaque carte, corriger, et ajouter vos exemples et vos mots avant de sauvegarder.<br><button type="button" class="btn bp" onclick="aiReviewed()">J'ai relu et adapté les cartes</button></div><div id="card-list"></div><button class="btn bw" onclick="addCard()">+ Ajouter une carte</button></div>
+  </div>
+  <div id="pane-lot" style="display:none">
+  <p class="help" style="margin-bottom:10px">Ajouter plusieurs cartes d'un coup : coller du texte, importer un fichier, ou préparer un brouillon avec une IA.</p>
+  <div class="tabs" id="sub-tabs">
+    <button class="tab on" data-sub="md" onclick="switchTab('md',this)">Markdown</button>
+    <button class="tab" data-sub="csv" onclick="switchTab('csv',this)">CSV</button>
+    <button class="tab" data-sub="claude" onclick="switchTab('claude',this)">Claude</button>
+  </div>
   <div id="tab-md" style="display:none">
     <div style="background:var(--bg2);border:.5px solid var(--bd);border-radius:var(--rm);padding:12px;margin-bottom:12px">
       <div style="font-size:14px;font-weight:500;color:var(--tx2);margin-bottom:8px">Format attendu :</div>
@@ -350,14 +370,28 @@ math-field{width:100%;font-size:28px;padding:8px 12px;border:.5px solid var(--bd
       <div style="font-size:16px;color:#633806;margin-top:8px">Compte gratuit claude.ai suffisant · Aucune clé API requise · Coller ensuite la réponse dans l'onglet Markdown.</div>
     </div>
   </div>
-  <div class="div"></div>
-  <div class="row">
+  </div>
+  <div id="pane-partager" style="display:none">
+    <div class="help" id="share-state" style="margin-bottom:12px"></div>
+    <div class="shb">
+      <h4>Pour les élèves</h4>
+      <small class="help">Génère un code de classe et un QR code. Les élèves révisent sans compte, et vous suivez leur progression dans les résultats.</small>
+      <div class="row">
+        <button class="btn bp" onclick="shareDeck()">Code de classe et QR code</button>
+        <button class="btn bt" id="btn-results" onclick="openResultsFromEditor()">Voir les résultats</button>
+      </div>
+    </div>
+    <div class="shb">
+      <h4>Sur papier</h4>
+      <small class="help">Feuilles A4 recto-verso, 8 cartes par page, pour les élèves sans écran.</small>
+      <div class="row"><button class="btn" onclick="printCards()">Imprimer les cartes</button></div>
+    </div>
+    <div id="share-area"></div>
+  </div>
+  <div class="actbar">
     <button class="btn bp" style="flex:2" onclick="saveDeck()">Sauvegarder</button>
     <button class="btn bt" style="flex:1" onclick="saveThenStudy()">Réviser</button>
-    <button class="btn" onclick="shareDeck()">Partager</button>
-    <button class="btn" onclick="printCards()">Imprimer les cartes</button>
   </div>
-  <div id="share-area"></div>
 </div>
 
 <!-- STUDY -->
@@ -884,17 +918,47 @@ function openCreate(id){
   document.getElementById('share-area').innerHTML='';
   document.getElementById('csv-config').style.display='none';
   document.getElementById('csv-file').value='';
-  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('on',i===0));
-  ['tab-form','tab-md','tab-csv','tab-claude'].forEach((id,i)=>document.getElementById(id).style.display=i===0?'block':'none');
+  switchMain('cartes');
   showSaving(false);redrawCards();showV('vc');
 }
 
+// Onglets principaux de l'éditeur : Cartes / Réglages / Importer / Partager
+const MAIN_PANES=['cartes','reglages','lot','partager'];
+let lotSub='md';
+function switchMain(n){
+  MAIN_PANES.forEach(m=>{const e=document.getElementById('pane-'+m);if(e)e.style.display=m===n?'block':'none'});
+  document.querySelectorAll('#main-tabs .tab').forEach(t=>{const on=t.dataset.main===n;t.classList.toggle('on',on);t.setAttribute('aria-selected',on?'true':'false')});
+  if(n==='lot')switchTab(lotSub);
+  if(n==='partager')refreshSharePane();
+  updateSummary();
+}
+// Sous-onglets de « Importer » (Markdown / CSV / Claude) ; 'form' = retour aux cartes
 function switchTab(n,el){
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
-  if(el)el.classList.add('on');
-  ['tab-form','tab-md','tab-csv','tab-claude'].forEach(id=>document.getElementById(id).style.display='none');
+  if(n==='form'){switchMain('cartes');return}
+  lotSub=n;
+  document.querySelectorAll('#sub-tabs .tab').forEach(t=>t.classList.toggle('on',t.dataset.sub===n));
+  ['tab-md','tab-csv','tab-claude'].forEach(id=>document.getElementById(id).style.display='none');
   document.getElementById('tab-'+n).style.display='block';
   if(n==='claude')buildPromptPreview();
+}
+function updateSummary(){
+  const el=document.getElementById('deck-summary');if(!el)return;
+  const n=editCards.length;const tc=document.getElementById('tcount');if(tc)tc.textContent='('+n+')';
+  const mode=document.getElementById('dshuffle').value==='leitner'?'ordre Leitner':'ordre aléatoire';
+  const lq=document.getElementById('dlangQ').value,la=document.getElementById('dlangA').value;
+  const parts=[mode];
+  if(document.getElementById('dshuffle').value==='leitner'&&hasSpaced)parts.push(document.getElementById('dspaced').checked?'révisions espacées':'sans espacement');
+  parts.push(lq===la?lq:lq+' → '+la);
+  el.innerHTML='Réglages : '+esc(parts.join(' · '))+'<button type="button" onclick="switchMain(\'reglages\')">modifier</button>';
+}
+function refreshSharePane(){
+  const st=document.getElementById('share-state'),rb=document.getElementById('btn-results');
+  if(st)st.textContent=editId?'Ce paquet est sauvegardé.':'Ce paquet n\'est pas encore sauvegardé : le bouton « Code de classe et QR code » le sauvegardera d\'abord.';
+  if(rb){rb.disabled=!editId;rb.title=editId?'':'Sauvegarder d\'abord le paquet'}
+}
+function openResultsFromEditor(){
+  if(!editId){toast('Sauvegarde d\'abord le paquet');return}
+  openResults(editId,document.getElementById('dname').value.trim()||'Paquet');
 }
 
 function mkCard(q,a){return{id:uid(),question:q,answer:a,box:1,lastSeen:null,qImg:null,aImg:null,qAud:null,aAud:null,qImgUrl:null,aImgUrl:null}}
@@ -902,7 +966,7 @@ function addCard(){editCards.push(mkCard('',''));redrawCards()}
 function removeCard(i){if(activeRec){toast('Arrête l\'enregistrement d\'abord');return}editCards.splice(i,1);redrawCards()}
 function hasMed(c){return!!(c.qImg||c.aImg||c.qAud||c.aAud||c.qImgUrl||c.aImgUrl)}
 
-function redrawCards(){
+function redrawCardsRaw(){
   if(activeRec){toast('Arrête l\'enregistrement d\'abord');return}
   const el=document.getElementById('card-list');
   if(!editCards.length){el.innerHTML='<div class="empty" style="padding:20px"><div style="font-size:28px">🃏</div><p>Aucune carte</p></div>';return}
@@ -912,6 +976,7 @@ function redrawCards(){
   }).join('');
 }
 
+function redrawCards(){redrawCardsRaw();updateSummary()}
 function mSec(i,side,label){
   const c=editCards[i];const id=c.id;
   const img=side==='q'?c.qImg:c.aImg;const imgUrl=side==='q'?c.qImgUrl:c.aImgUrl;
@@ -1056,8 +1121,7 @@ function importCSV(){
   if(!cards.length){toast('Aucune donnée valide');return}
   editCards=[...editCards,...cards];
   document.getElementById('csv-file').value='';document.getElementById('csv-config').style.display='none';csvParsed=null;
-  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('on',i===0));
-  ['tab-form','tab-md','tab-csv','tab-claude'].forEach((id,i)=>document.getElementById(id).style.display=i===0?'block':'none');
+  switchMain('cartes');
   redrawCards();toast(cards.length+' cartes importées depuis le CSV');
 }
 
@@ -1079,8 +1143,7 @@ function importMd(){
   const parsed=parseMd(document.getElementById('md-input').value);
   if(!parsed.length){toast('Aucune carte trouvée');return}
   editCards=[...editCards,...parsed];document.getElementById('md-input').value='';aiPending=true;document.getElementById('ai-note').style.display='block';
-  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('on',i===0));
-  ['tab-form','tab-md','tab-csv','tab-claude'].forEach((id,i)=>document.getElementById(id).style.display=i===0?'block':'none');
+  switchMain('cartes');
   redrawCards();toast(parsed.length+' cartes importées');
 }
 
@@ -1329,6 +1392,7 @@ function restartStudy(){buildQ();document.getElementById('cview').style.display=
   populateLangSelects();
   try{if(localStorage.getItem('flashplai_dys')==='1')setDys(true)}catch{}
   renderProfiles();
+  document.getElementById('pane-reglages').addEventListener('change',updateSummary);
   if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('/sw.js').catch(()=>{});
   if(window.speechSynthesis){window.speechSynthesis.getVoices();window.speechSynthesis.onvoiceschanged=()=>{}}
   const hash=window.location.hash.slice(1);const params=new URLSearchParams(hash);
