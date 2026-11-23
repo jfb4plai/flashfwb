@@ -833,6 +833,10 @@ function detailCards(deck,s){
   if(!l1&&!l2)return'';
   return'<details class="res-det"><summary>Voir quelles cartes (à revoir : '+s.c1.length+', presque : '+s.c2.length+')</summary>'+(l1?'<h4>À revoir</h4><ul>'+l1+'</ul>':'')+(l2?'<h4>Presque</h4><ul>'+l2+'</ul>':'')+'</details>';
 }
+function switchResTab(n){
+  ['eleves','cartes'].forEach(m=>{const e=document.getElementById('res-pane-'+m);if(e)e.style.display=m===n?'block':'none'});
+  document.querySelectorAll('#res-tabs .tab').forEach(t=>{const on=t.dataset.rt===n;t.classList.toggle('on',on);t.setAttribute('aria-selected',on?'true':'false')});
+}
 async function openResults(deckId,deckName){
   document.getElementById('rtitle').textContent=deckName;
   document.getElementById('results-content').innerHTML='<div class="empty"><div class="spin" style="width:20px;height:20px;margin:0 auto"></div><p>Chargement…</p></div>';
@@ -862,17 +866,19 @@ async function openResults(deckId,deckName){
   const hardCards=Object.entries(cardBoxes).filter(([,v])=>v.total>0&&v.b1/v.total>=0.5).map(([cid])=>deck?.cards.find(c=>c.id===cid)).filter(Boolean);
   const nb=Object.keys(students).length;
   let html='<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap"><div style="background:var(--tl);border:.5px solid #9FE1CB;border-radius:var(--rm);padding:8px 14px;font-size:14px;color:#085041">Code : <strong>'+codeData.code+'</strong></div><div style="font-size:14px;color:var(--tx2)">'+nb+' élève'+(nb>1?'s':'')+' · '+total+' cartes</div></div>';
-  html+='<div style="font-size:14px;font-weight:500;color:var(--tx2);margin-bottom:8px">Progression par élève</div>';
+  html+='<div class="tabs" id="res-tabs" role="tablist"><button class="tab on" role="tab" aria-selected="true" data-rt="eleves" onclick="switchResTab(\'eleves\')">Élèves ('+nb+')</button><button class="tab" role="tab" aria-selected="false" data-rt="cartes" onclick="switchResTab(\'cartes\')">Cartes difficiles ('+hardCards.length+')</button></div><div id="res-pane-eleves">';
   const sorted=Object.entries(students).sort((a,b)=>b[1].b3-a[1].b3);
   for(const[name,s] of sorted){
     const done=s.b1+s.b2+s.b3;
     const lastStr=s.last?s.last.toLocaleDateString('fr-BE',{day:'2-digit',month:'2-digit',year:'numeric'}):'–';
     html+='<div class="res-card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><span style="font-size:16px;font-weight:500">'+esc(name)+'</span><span style="font-size:14px;color:var(--tx3)">Dernière révision : '+lastStr+'</span></div><div class="res-bars"><div class="res-bar" style="background:#E24B4A;flex:'+(s.b1||0.5)+'"></div><div class="res-bar" style="background:#EF9F27;flex:'+(s.b2||0.5)+'"></div><div class="res-bar" style="background:#1D9E75;flex:'+(s.b3||0.5)+'"></div></div><div style="display:flex;gap:12px;font-size:14px;color:var(--tx2)"><span style="color:#791F1F">■ '+s.b1+' à revoir</span><span style="color:#633806">■ '+s.b2+' presque</span><span style="color:#085041">■ '+s.b3+' maîtrisées</span><span style="margin-left:auto">'+done+'/'+total+'</span></div>'+detailCards(deck,s)+'</div>';
   }
+  html+='</div><div id="res-pane-cartes" style="display:none">';
+  html+='<p class="help" style="margin-bottom:10px">Une carte est « difficile » quand au moins la moitié des élèves qui l\'ont travaillée la laissent en boîte « À revoir ». Bon point de départ pour une remédiation en classe.</p>';
   if(hardCards.length){
-    html+='<div style="font-size:14px;font-weight:500;color:var(--tx2);margin:16px 0 8px">Cartes difficiles (≥ 50% en boîte 1)</div>';
     for(const c of hardCards)html+='<div class="hard-card"><b>Q :</b> '+rich(c.question)+'<br><span style="color:#555;font-size:14px">R : '+rich(c.answer)+'</span></div>';
-  }
+  }else html+='<div class="empty"><p>Aucune carte difficile pour le moment.</p></div>';
+  html+='</div>';
   document.getElementById('results-content').innerHTML=html;
 }
 

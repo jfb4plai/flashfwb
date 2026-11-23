@@ -18,6 +18,7 @@ Application de cartes mémoire pédagogiques pour les enseignants de la Fédéra
 - Identifiant élève : prénom (sans nom de famille) ou code élève fourni par l'enseignant (liste imprimable depuis le code de classe)
 - Mode « Lecture facilitée » (Arial, interligne et espacement agrandis), mémorisé sur l'appareil
 - Option par paquet « Espacer les révisions dans le temps » (ordre Leitner) : nécessite `migration_v4.sql`
+- Tableau de bord en deux onglets : « Élèves » et « Cartes difficiles » (au moins la moitié des élèves la laissent en boîte « À revoir »)
 - Tableau de bord : pour chaque élève, la liste des cartes à revoir et « presque »
 - Générateur IA : niveau, nombre de cartes et contexte de classe dans le prompt ; cartes importées à relire avant sauvegarde
 - Accueil à deux entrées (« Je suis enseignant·e » / « Je suis élève »), le lien QR ouvre directement le formulaire élève
