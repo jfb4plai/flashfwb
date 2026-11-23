@@ -45,6 +45,7 @@ flashfwb/
 ├── migration_v2.sql  Migration v2 : colonnes Leitner, codes de classe, progression élèves
 ├── migration_v3.sql  Migration v3 : correctif de sécurité (RLS de student_progress)
 ├── migration_v6a_fonctions_eleve.sql, migration_v6b_retrait_acces_direct.sql   Migration v6 : accès élève par fonctions
+├── migration_v7_progression_paquet.sql   Migration v7 : progression suit la vie du paquet
 ├── migration_v5.sql  Migration v5 : expiration des codes de classe
 ├── migration_v4.sql  Migration v4 : option « espacer les révisions » (colonne decks.spaced)
 └── README.md         Ce fichier
@@ -85,6 +86,7 @@ Dans Supabase → **SQL Editor → New query**, exécute les scripts dans cet or
 4. `migration_v4.sql` — option « espacer les révisions » par paquet (ajout d'une colonne, facultatif : sans elle, l'option est masquée)
 5. `migration_v5.sql` — expiration des codes de classe (colonne `class_codes.expires_at` + deux politiques élèves recréées ; facultatif : sans elle, l'option est masquée)
 6. `migration_v6a_fonctions_eleve.sql` puis `migration_v6b_retrait_acces_direct.sql` — sécurité : l'élève passe par deux fonctions serveur (`flash_student_open`, `flash_student_save`) et les visiteurs non connectés n'ont plus aucun accès direct aux tables. v6a d'abord, puis publier l'app, puis v6b. Obligatoire : l'app actuelle ne fonctionne plus côté élève sans v6a
+7. `migration_v7_progression_paquet.sql` — progression des élèves : supprime la progression d'une carte quand la carte est supprimée (et nettoie les lignes orphelines) ; crée `flash_reset_card_progress`, appelée quand l'enseignant coche, à l'enregistrement, des cartes dont le sens a changé. Sans v7, l'app fonctionne mais la remise à zéro est refusée (message d'avertissement)
 
 Les scripts v2, v3 et v4 sont relançables sans risque. Sur une base neuve, v2 contient déjà la règle de sécurité de v3 : v3 sert aux bases créées avant ce correctif.
 

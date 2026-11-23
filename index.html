@@ -483,6 +483,18 @@ body.editing .dys-fab{bottom:70px}
   </div>
 </div>
 
+<div class="modal-overlay hidden" id="chg-modal">
+  <div class="modal" style="max-width:520px">
+    <h3 style="font-size:16px;font-weight:600;margin-bottom:4px">Cartes modifiées déjà travaillées par des élèves</h3>
+    <p class="help" style="font-size:14px;color:var(--tx2);margin-bottom:10px">Cocher les cartes dont le <b>sens a changé</b> : leur progression sera remise à zéro pour tous les élèves (elles repartent en « À revoir »). Laisser décoché pour une simple correction d'orthographe : les élèves gardent leur progression.</p>
+    <div id="chg-list"></div>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button class="btn bp" style="flex:1" onclick="chgDone(true)">Enregistrer</button>
+      <button class="btn" style="flex:1" onclick="chgDone(false)">Annuler</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay hidden" id="qr-modal">
   <div class="modal">
     <button class="modal-close" onclick="closeQR()">✕</button>
@@ -882,7 +894,11 @@ async function openResults(deckId,deckName){
   showV('vr');
   const{data:codeData}=await sb.from('class_codes').select('id,code').eq('deck_id',deckId).eq('active',true).maybeSingle();
   if(!codeData){document.getElementById('results-content').innerHTML='<div class="empty"><div style="font-size:32px">📊</div><p>Aucun code de classe actif pour ce paquet.</p></div>';return}
-  const{data:progress}=await sb.from('student_progress').select('student_name,card_id,box,last_seen').eq('code_id',codeData.id);
+  const{data:progressAll}=await sb.from('student_progress').select('student_name,card_id,box,last_seen').eq('code_id',codeData.id);
+  // Ignore la progression de cartes supprimées (lignes orphelines) : sinon « 7/6 » cartes travaillées
+  const deck0=decks.find(d=>d.id===deckId);
+  const validIds=deck0?new Set(deck0.cards.map(c=>c.id)):null;
+  const progress=progressAll&&validIds?progressAll.filter(p=>validIds.has(p.card_id)):progressAll;
   if(!progress||!progress.length){
     document.getElementById('results-content').innerHTML='<div style="background:var(--tl);border:.5px solid #9FE1CB;border-radius:var(--rm);padding:12px;font-size:14px;color:#085041">Code actif : <strong>'+codeData.code+'</strong> — Aucun élève n\'a encore révisé.</div>';
     return;
@@ -956,6 +972,7 @@ function openCreate(id){
   aiPending=false;document.getElementById('ai-note').style.display='none';
   toggleLeitnerOpts();
   editCards=d?d.cards.map(c=>({...c})):[];
+  snapCards(editCards);
   closedCards.clear();if(editCards.length>FOLD_AT)editCards.forEach(c=>closedCards.add(c.id));
   document.getElementById('md-input').value='';
   document.getElementById('share-area').innerHTML='';
@@ -1004,6 +1021,42 @@ function openResultsFromEditor(){
   openResults(editId,document.getElementById('dname').value.trim()||'Paquet');
 }
 
+// Cartes modifiées pendant l'édition : l'enseignant décide quelles progressions remettre à zéro
+let origSnap={},chgResolve=null;
+function snapCards(list){origSnap={};(list||[]).forEach(c=>{if(c.id)origSnap[c.id]={q:c.question,a:c.answer}})}
+async function changedWithProgress(cards){
+  if(!editId)return[];
+  const ch=cards.filter(c=>c.id&&origSnap[c.id]&&(origSnap[c.id].q!==c.question||origSnap[c.id].a!==c.answer));
+  if(!ch.length)return[];
+  const{data,error}=await sb.from('student_progress').select('card_id').eq('deck_id',editId).in('card_id',ch.map(c=>c.id));
+  if(error||!data||!data.length)return[];
+  const cnt={};data.forEach(r=>{cnt[r.card_id]=(cnt[r.card_id]||0)+1});
+  return ch.filter(c=>cnt[c.id]).map(c=>({c,n:cnt[c.id],old:origSnap[c.id]}));
+}
+function askReset(items){
+  const cut=t=>{t=t||'';return t.length>70?t.slice(0,70)+'…':t};
+  document.getElementById('chg-list').innerHTML=items.map((it,i)=>
+    '<label style="display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:.5px solid var(--bd);font-size:15px;cursor:pointer">'
+    +'<input type="checkbox" data-id="'+esc(it.c.id)+'" style="margin-top:4px;width:20px;height:20px;flex:none">'
+    +'<span><span style="color:var(--tx3);text-decoration:line-through">'+esc(cut(it.old.q))+' → '+esc(cut(it.old.a))+'</span><br>'
+    +esc(cut(it.c.question))+' → '+esc(cut(it.c.answer))
+    +'<br><span style="font-size:14px;color:var(--tx2)">'+it.n+' réponse'+(it.n>1?'s':'')+' d\'élèves enregistrée'+(it.n>1?'s':'')+'</span></span></label>'
+  ).join('');
+  document.getElementById('chg-modal').classList.remove('hidden');
+  return new Promise(res=>{chgResolve=res});
+}
+function chgDone(ok){
+  const ids=ok?[...document.querySelectorAll('#chg-list input:checked')].map(i=>i.dataset.id):null;
+  document.getElementById('chg-modal').classList.add('hidden');
+  if(chgResolve){chgResolve(ids);chgResolve=null}
+}
+async function prepareSave(cards){const items=await changedWithProgress(cards);return items.length?askReset(items):[]}
+async function applyReset(id,ids){
+  if(!ids.length)return false;
+  const{error}=await sb.rpc('flash_reset_card_progress',{p_deck_id:id,p_card_ids:ids});
+  if(error){toast('Paquet sauvegardé, mais la remise à zéro n\'a pas pu se faire : '+error.message);return true}
+  toast('Paquet sauvegardé · progression remise à zéro pour '+ids.length+' carte'+(ids.length>1?'s':''));return true;
+}
 function mkCard(q,a){return{id:uid(),question:q,answer:a,box:1,lastSeen:null,qImg:null,aImg:null,qAud:null,aAud:null,qImgUrl:null,aImgUrl:null}}
 const FOLD_AT=8;
 let closedCards=new Set();
@@ -1311,12 +1364,14 @@ async function saveDeck(){
   if(!guardAi())return;
   const{name,langQ,langA,tts,shuffle,noSkipBox,weightedReview,spaced,cards}=getDeckData();
   if(!name){toast('Donne un nom au paquet');return}if(!cards.length){toast('Ajoute au moins une carte');return}
+  const resetIds=await prepareSave(cards);if(resetIds===null)return;
   showSaving(true);
   try{
     const id=await withTimeout(saveDeckCloud(name,langQ,langA,tts,shuffle,cards,noSkipBox,weightedReview,spaced),30000);
     editId=id;
     updateLocalDeck(id,name,langQ,langA,tts,shuffle,noSkipBox,weightedReview,spaced,cards);
-    toast('Paquet sauvegardé ☁');
+    snapCards(cards);
+    if(!await applyReset(id,resetIds))toast('Paquet sauvegardé ☁');
   }catch(e){
     console.error('[FlashFWB] saveDeck error:',e);
     toast('Erreur : '+(e?.message||String(e)));
@@ -1326,11 +1381,14 @@ async function saveThenStudy(){
   if(!user){toast('Connecte-toi pour sauvegarder');return}
   if(!guardAi())return;
   const{name,langQ,langA,tts,shuffle,noSkipBox,weightedReview,spaced,cards}=getDeckData();if(!name||!cards.length){toast(!name?'Donne un nom':'Ajoute des cartes');return}
+  const resetIds=await prepareSave(cards);if(resetIds===null)return;
   showSaving(true);
   try{
     const id=await withTimeout(saveDeckCloud(name,langQ,langA,tts,shuffle,cards,noSkipBox,weightedReview,spaced),30000);
     editId=id;
     updateLocalDeck(id,name,langQ,langA,tts,shuffle,noSkipBox,weightedReview,spaced,cards);
+    snapCards(cards);
+    await applyReset(id,resetIds);
     openStudy(id);
   }catch(e){
     console.error('[FlashFWB] saveThenStudy error:',e);
