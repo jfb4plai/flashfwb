@@ -15,6 +15,11 @@ Application de cartes mémoire pédagogiques pour les enseignants de la Fédéra
 - Ordre des cartes : Leitner (par boîte) ou aléatoire
 - Code de classe + QR code — accès élèves sans compte
 - Tableau de bord enseignant — progression par élève, cartes difficiles
+- Identifiant élève : prénom (sans nom de famille) ou code élève fourni par l'enseignant (liste imprimable depuis le code de classe)
+- Mode « Lecture facilitée » (Arial, interligne et espacement agrandis), mémorisé sur l'appareil
+- Option par paquet « Espacer les révisions dans le temps » (ordre Leitner) : nécessite `migration_v4.sql`
+- Tableau de bord : pour chaque élève, la liste des cartes à revoir et « presque »
+- Générateur IA : niveau, nombre de cartes et contexte de classe dans le prompt ; cartes importées à relire avant sauvegarde
 - Accueil à deux entrées (« Je suis enseignant·e » / « Je suis élève »), le lien QR ouvre directement le formulaire élève
 - Mode sombre supporté
 
@@ -30,6 +35,7 @@ flashfwb/
 ├── setup.sql         Script SQL initial (v5.1) : tables decks et cards
 ├── migration_v2.sql  Migration v2 : colonnes Leitner, codes de classe, progression élèves
 ├── migration_v3.sql  Migration v3 : correctif de sécurité (RLS de student_progress)
+├── migration_v4.sql  Migration v4 : option « espacer les révisions » (colonne decks.spaced)
 └── README.md         Ce fichier
 ```
 
@@ -65,7 +71,9 @@ Dans Supabase → **SQL Editor → New query**, exécute les scripts dans cet or
 2. `migration_v2.sql` — colonnes Leitner (ordre, sans saut de boîte, pondération), codes de classe, progression élèves
 3. `migration_v3.sql` — correctif de sécurité : la progression élève n'est lisible et modifiable que pour un code de classe actif
 
-Les scripts v2 et v3 sont relançables sans risque. Sur une base neuve, v2 contient déjà la règle de sécurité de v3 : v3 sert aux bases créées avant ce correctif.
+4. `migration_v4.sql` — option « espacer les révisions » par paquet (ajout d'une colonne, facultatif : sans elle, l'option est masquée)
+
+Les scripts v2, v3 et v4 sont relançables sans risque. Sur une base neuve, v2 contient déjà la règle de sécurité de v3 : v3 sert aux bases créées avant ce correctif.
 
 Résultat attendu à chaque fois : `Success. No rows returned`
 

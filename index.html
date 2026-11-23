@@ -30,25 +30,25 @@ body{font-family:var(--ff);color:var(--tx);background:var(--bg3);min-height:100v
 .view{display:none;padding:0 0 2rem}.view.active{display:block}
 .hdr{display:flex;align-items:center;gap:10px;padding:0 0 18px;border-bottom:.5px solid var(--bd);margin-bottom:18px}
 .logo{font-size:18px;font-weight:600}.logo b{color:var(--a)}
-.bback{background:none;border:.5px solid var(--bd);border-radius:var(--rm);padding:5px 10px;cursor:pointer;font-size:13px;color:var(--tx2)}.bback:hover{background:var(--bg2)}
-.hsub{margin-left:auto;font-size:12px;color:var(--tx3)}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 16px;border-radius:var(--rm);font-size:14px;font-weight:500;cursor:pointer;border:.5px solid var(--bd2);background:var(--bg);color:var(--tx);transition:background .15s}
+.bback{background:none;border:.5px solid var(--bd);border-radius:var(--rm);padding:5px 10px;cursor:pointer;font-size:14px;color:var(--tx2)}.bback:hover{background:var(--bg2)}
+.hsub{margin-left:auto;font-size:14px;color:var(--tx3)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 16px;border-radius:var(--rm);font-size:16px;font-weight:500;cursor:pointer;border:.5px solid var(--bd2);background:var(--bg);color:var(--tx);transition:background .15s}
 .btn:hover{background:var(--bg2)}.btn:disabled{opacity:.4;cursor:not-allowed}
 .bp{background:var(--al);color:#633806;border-color:var(--am)}.bp:hover{background:var(--am)}
 .bt{background:var(--tl);color:#085041;border-color:#9FE1CB}.bt:hover{background:#9FE1CB}
 .br{background:var(--rl);color:#791F1F;border-color:#F7C1C1}.br:hover{background:#F7C1C1}
 .bpu{background:var(--pul);color:#3C3489;border-color:#AFA9EC}.bpu:hover{background:#CECBF6}
 .bw{width:100%;margin-top:8px;justify-content:center}
-.ib{padding:4px 9px;font-size:11px;border:.5px solid var(--bd);background:var(--bg2);border-radius:var(--rm);cursor:pointer;display:inline-flex;align-items:center;gap:3px;color:var(--tx2);white-space:nowrap}
+.ib{padding:4px 9px;font-size:14px;border:.5px solid var(--bd);background:var(--bg2);border-radius:var(--rm);cursor:pointer;display:inline-flex;align-items:center;gap:3px;color:var(--tx2);white-space:nowrap}
 .ib:hover{border-color:var(--bd2)}.ibrec{background:var(--rl);border-color:#F7C1C1;color:#791F1F}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}.pulsing{animation:pulse 1s ease infinite}
-input[type=text],input[type=email],input[type=password],textarea,select{width:100%;padding:9px 12px;border:.5px solid var(--bd2);border-radius:var(--rm);font-size:14px;color:var(--tx);background:var(--bg);font-family:var(--ff);outline:none}
+input[type=text],input[type=email],input[type=password],textarea,select{width:100%;padding:9px 12px;border:.5px solid var(--bd2);border-radius:var(--rm);font-size:16px;color:var(--tx);background:var(--bg);font-family:var(--ff);outline:none}
 input:focus,textarea:focus,select:focus{border-color:var(--a);outline:2px solid rgba(239,159,39,.2)}
 textarea{resize:vertical;min-height:80px;line-height:1.5}
-label{font-size:13px;color:var(--tx2);display:block;margin-bottom:5px}
+label{font-size:14px;color:var(--tx2);display:block;margin-bottom:5px}
 .fld{margin-bottom:12px}
 .tabs{display:flex;border-bottom:.5px solid var(--bd);margin-bottom:16px;flex-wrap:wrap}
-.tab{padding:8px 12px;font-size:13px;font-weight:500;color:var(--tx2);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-.5px}
+.tab{padding:8px 12px;font-size:14px;font-weight:500;color:var(--tx2);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-.5px}
 .tab.on{color:var(--tx);border-bottom-color:var(--a)}
 .di{background:var(--bg);border:.5px solid var(--bd);border-radius:var(--rr);padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .di:hover{border-color:var(--bd2)}
@@ -56,18 +56,18 @@ label{font-size:13px;color:var(--tx2);display:block;margin-bottom:5px}
 .di-btns{display:flex;gap:5px;flex-wrap:wrap}
 .cw{background:var(--bg2);border:.5px solid var(--bd);border-radius:var(--rm);margin-bottom:8px;overflow:hidden}
 .crow{display:flex;gap:8px;align-items:flex-start;padding:10px}
-.cnum{background:var(--al);color:#633806;border-radius:6px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0;margin-top:2px}
+.cnum{background:var(--al);color:#633806;border-radius:6px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;flex-shrink:0;margin-top:2px}
 .cflds{flex:1;display:flex;flex-direction:column;gap:6px}
 .cright{display:flex;flex-direction:column;gap:5px;align-items:center;flex-shrink:0}
-.cdel{background:none;border:none;cursor:pointer;color:var(--tx3);font-size:15px;padding:2px 4px}.cdel:hover{color:var(--re)}
-.cmtog{font-size:11px;padding:2px 7px;border:.5px solid var(--bd);border-radius:100px;background:none;cursor:pointer;color:var(--tx3)}.cmtog.hm{border-color:var(--am);color:#633806;background:var(--al)}
+.cdel{background:none;border:none;cursor:pointer;color:var(--tx3);font-size:16px;padding:2px 4px}.cdel:hover{color:var(--re)}
+.cmtog{font-size:14px;padding:2px 7px;border:.5px solid var(--bd);border-radius:100px;background:none;cursor:pointer;color:var(--tx3)}.cmtog.hm{border-color:var(--am);color:#633806;background:var(--al)}
 .cmp{padding:10px;border-top:.5px solid var(--bd);display:none;flex-direction:column;gap:10px}.cmp.open{display:flex}
-.mslbl{font-size:11px;color:var(--tx3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px;font-weight:500}
+.mslbl{font-size:14px;color:var(--tx3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px;font-weight:500}
 .mc{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
 .ithumb{width:44px;height:44px;object-fit:cover;border-radius:var(--rm);border:.5px solid var(--bd)}
 .boxes{display:flex;gap:8px;margin:12px 0 16px}
 .box{flex:1;border-radius:var(--rm);padding:10px;text-align:center;border:.5px solid var(--bd)}
-.bxn{font-size:22px;font-weight:500;line-height:1.2}.bxl{font-size:11px;color:var(--tx2);margin-top:2px}
+.bxn{font-size:22px;font-weight:500;line-height:1.2}.bxl{font-size:14px;color:var(--tx2);margin-top:2px}
 .bx1{background:var(--rl)}.bx1 .bxn{color:#791F1F}
 .bx2{background:var(--al)}.bx2 .bxn{color:#633806}
 .bx3{background:var(--tl)}.bx3 .bxn{color:#085041}
@@ -78,20 +78,20 @@ label{font-size:13px;color:var(--tx2);display:block;margin-bottom:5px}
 .fc.flip{transform:rotateY(180deg)}
 .fcf{position:absolute;inset:0;border:.5px solid var(--bd);border-radius:var(--rr);backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;text-align:center;gap:5px;overflow:hidden;background:var(--bg)}
 .fcback{transform:rotateY(180deg);background:var(--al);border-color:var(--am)}
-.fclbl{font-size:11px;color:var(--tx3);letter-spacing:.8px;text-transform:uppercase}
+.fclbl{font-size:14px;color:var(--tx3);letter-spacing:.8px;text-transform:uppercase}
 .fctxt{font-size:16px;font-weight:500;line-height:1.4}
-.fchint{font-size:12px;color:var(--tx3);margin-top:2px}
+.fchint{font-size:14px;color:var(--tx3);margin-top:2px}
 .fcimg{max-width:100%;max-height:72px;border-radius:var(--rm);object-fit:contain}
-.fcplay{padding:3px 12px;font-size:12px;border:.5px solid var(--bd);background:var(--bg);border-radius:100px;cursor:pointer;color:var(--tx2)}.fcplay:hover{background:var(--bg2)}
+.fcplay{padding:3px 12px;font-size:14px;border:.5px solid var(--bd);background:var(--bg);border-radius:100px;cursor:pointer;color:var(--tx2)}.fcplay:hover{background:var(--bg2)}
 .sr{display:flex;gap:8px}
-.sr .btn{flex:1;flex-direction:column;gap:2px;padding:10px 6px;font-size:13px}
-.sr .btn small{font-size:10px;opacity:.65;font-weight:400}
-.surl{background:var(--bg3);border:.5px solid var(--bd);border-radius:var(--rm);padding:10px;font-size:11px;font-family:monospace;word-break:break-all;color:var(--tx2);margin-top:8px}
-.code-mono{background:var(--bg3);border:.5px solid var(--bd);border-radius:var(--rm);padding:12px;font-size:12px;font-family:monospace;line-height:1.6;color:var(--tx2)}
-.empty{text-align:center;padding:40px 20px;color:var(--tx3)}.empty p{font-size:14px;margin-top:6px}
+.sr .btn{flex:1;flex-direction:column;gap:2px;padding:10px 6px;font-size:14px}
+.sr .btn small{font-size:14px;opacity:.65;font-weight:400}
+.surl{background:var(--bg3);border:.5px solid var(--bd);border-radius:var(--rm);padding:10px;font-size:14px;font-family:monospace;word-break:break-all;color:var(--tx2);margin-top:8px}
+.code-mono{background:var(--bg3);border:.5px solid var(--bd);border-radius:var(--rm);padding:12px;font-size:14px;font-family:monospace;line-height:1.6;color:var(--tx2)}
+.empty{text-align:center;padding:40px 20px;color:var(--tx3)}.empty p{font-size:16px;margin-top:6px}
 @keyframes spin{to{transform:rotate(360deg)}}
 .spin{width:14px;height:14px;border:1.5px solid var(--am);border-top-color:#633806;border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:10px 20px;border-radius:var(--rm);font-size:13px;white-space:nowrap;pointer-events:none;z-index:999;opacity:0;transition:opacity .25s}
+.toast{position:fixed;bottom:64px;left:50%;transform:translateX(-50%);max-width:90vw;background:var(--tx);color:var(--bg);padding:10px 20px;border-radius:var(--rm);font-size:14px;pointer-events:none;z-index:999;opacity:0;transition:opacity .25s;text-align:center}
 .toast.show{opacity:1}
 .div{height:.5px;background:var(--bd);margin:16px 0}
 .row{display:flex;gap:8px;flex-wrap:wrap}
@@ -100,34 +100,50 @@ label{font-size:13px;color:var(--tx2);display:block;margin-bottom:5px}
 .complt-icon{font-size:48px;display:block;animation:bop .5s ease;margin-bottom:12px}
 .auth-box{max-width:400px;margin:28px auto 0}
 .auth-box h2{font-size:22px;font-weight:600;margin-bottom:4px}
-.auth-box p{font-size:14px;color:var(--tx2);margin-bottom:20px}
+.auth-box p{font-size:16px;color:var(--tx2);margin-bottom:20px}
 .auth-tabs{display:flex;border:.5px solid var(--bd2);border-radius:var(--rm);overflow:hidden;margin-bottom:20px}
-.auth-tab{flex:1;padding:9px 4px;font-size:12px;font-weight:500;cursor:pointer;border:none;background:none;color:var(--tx2);text-align:center}
+.auth-tab{flex:1;padding:9px 4px;font-size:14px;font-weight:500;cursor:pointer;border:none;background:none;color:var(--tx2);text-align:center}
 .auth-tab.on{background:var(--al);color:#633806}
 .auth-tab.on.s{background:var(--pul);color:#3C3489}
+.dys-fab{position:fixed;right:12px;bottom:12px;z-index:150;font:inherit;font-size:16px;padding:8px 14px;border-radius:999px;border:1px solid var(--bd2);background:var(--bg);color:var(--tx);cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.dys-fab[aria-pressed=true]{background:var(--tx);color:var(--bg)}
+body{padding-bottom:64px}
+body.dys{--ff:Arial,Helvetica,sans-serif;line-height:1.7;letter-spacing:.03em;word-spacing:.12em}
+body.dys button,body.dys input,body.dys select,body.dys textarea{font-family:inherit;letter-spacing:inherit}
+body.dys .fctxt{line-height:1.7;font-size:20px}
+.stu-codes{margin:12px 0;border:.5px solid var(--bd);border-radius:var(--rm);padding:10px 12px;background:var(--bg2)}
+.stu-codes summary{cursor:pointer;font-size:16px;font-weight:500}
+.stu-codes .help,.stu-codes label{margin-top:8px}
+.res-det{margin-top:10px;border-top:.5px solid var(--bd);padding-top:8px}
+.res-det summary{cursor:pointer;font-size:16px;color:var(--tx2)}
+.res-det h4{font-size:16px;margin:10px 0 4px}
+.res-det ul{padding-left:20px;font-size:16px}
+.ai-note{background:var(--al);border:.5px solid var(--am);border-radius:var(--rm);padding:12px;margin-bottom:12px;font-size:16px;color:#633806}
+.ai-note .btn{margin-top:8px}
+.cl-field{margin-bottom:12px}
 /* Accueil : accroche + deux entrées */
-.auth-tab{font-size:15px;padding:10px 4px}
-.auth-box label{font-size:15px;font-weight:600;color:var(--tx)}
+.auth-tab{font-size:16px;padding:10px 4px}
+.auth-box label{font-size:16px;font-weight:600;color:var(--tx)}
 .auth-box input{font-size:16px;padding:10px 12px}
-.help{display:block;font-size:14px;color:var(--tx2);margin-top:4px}
-.pill{display:inline-block;background:var(--tl);color:#085041;border:1px solid #9FE1CB;border-radius:999px;padding:4px 14px;font-size:14px;font-weight:600;margin:14px 0}
+.help{display:block;font-size:16px;color:var(--tx2);margin-top:4px}
+.pill{display:inline-block;background:var(--tl);color:#085041;border:1px solid #9FE1CB;border-radius:999px;padding:4px 14px;font-size:16px;font-weight:600;margin:14px 0}
 .landing-h{font-size:28px;line-height:1.2;margin-bottom:10px}.landing-h b{color:var(--a)}
 .landing-lead{font-size:17px;color:var(--tx2);max-width:560px}
 .bens{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0 6px}
 .ben{border:.5px solid var(--bd);border-radius:var(--rr);padding:14px;background:var(--bg2)}
 .ben .ic{font-size:24px;display:block;margin-bottom:4px}
-.ben h3{font-size:16px;margin-bottom:4px}.ben p{font-size:15px;color:var(--tx2)}
+.ben h3{font-size:16px;margin-bottom:4px}.ben p{font-size:16px;color:var(--tx2)}
 .choose{margin:22px 0 4px}.choose h2{font-size:20px;margin-bottom:12px}
 .entries{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .entry{display:flex;flex-direction:column;gap:6px;text-align:left;font:inherit;color:var(--tx);border:2px solid var(--bd2);border-radius:var(--rr);padding:18px;background:var(--bg);cursor:pointer;min-height:150px}
 .entry:hover,.entry:focus-visible{border-color:var(--tx)}
 .entry .ic{font-size:30px}.entry strong{font-size:19px}
-.entry .s{font-size:15px;color:var(--tx2)}
+.entry .s{font-size:16px;color:var(--tx2)}
 .entry.t{background:var(--al);border-color:var(--am)}.entry.e{background:var(--pul);border-color:#AFA9EC}
 .entry .go{margin-top:auto;font-weight:700;font-size:16px}
 .entry.t .go{color:#633806}.entry.e .go{color:#3C3489}
 .auth-back{background:none;border:0;font:inherit;font-size:16px;color:var(--tx2);cursor:pointer;margin-bottom:6px}
-.stu-steps{background:var(--pul);border:.5px solid #AFA9EC;border-radius:var(--rr);padding:12px 16px;margin-bottom:16px;font-size:15px;color:#3C3489}
+.stu-steps{background:var(--pul);border:.5px solid #AFA9EC;border-radius:var(--rr);padding:12px 16px;margin-bottom:16px;font-size:16px;color:#3C3489}
 .stu-steps ol{padding-left:20px}
 #auth-landing{display:flex;flex-direction:column;align-items:flex-start}
 #auth-landing .bens,#auth-landing .choose{align-self:stretch}
@@ -139,18 +155,18 @@ label{font-size:13px;color:var(--tx2);display:block;margin-bottom:5px}
 .modal-close{position:absolute;top:12px;right:12px;background:none;border:none;cursor:pointer;font-size:20px;color:var(--tx3);line-height:1}
 .code-badge{font-size:28px;font-weight:700;letter-spacing:4px;color:var(--tx);background:var(--bg2);border-radius:var(--rm);padding:10px 16px;text-align:center;margin:10px 0;font-family:monospace}
 .code-input-big{font-size:20px;letter-spacing:3px;text-align:center;font-family:monospace;text-transform:uppercase}
-.student-badge{background:var(--pul);color:#3C3489;border:.5px solid #AFA9EC;border-radius:100px;font-size:12px;padding:4px 12px;display:inline-flex;align-items:center;gap:5px}
-.save-ind{font-size:12px;color:var(--tx3);display:flex;align-items:center;gap:5px;margin-left:auto}
+.student-badge{background:var(--pul);color:#3C3489;border:.5px solid #AFA9EC;border-radius:100px;font-size:14px;padding:4px 12px;display:inline-flex;align-items:center;gap:5px}
+.save-ind{font-size:14px;color:var(--tx3);display:flex;align-items:center;gap:5px;margin-left:auto}
 .claude-box{background:var(--al);border:.5px solid var(--am);border-radius:var(--rr);padding:16px}
-.prompt-preview{background:var(--bg);border:.5px solid var(--am);border-radius:var(--rm);padding:10px;font-size:12px;font-family:monospace;line-height:1.6;color:var(--tx2);margin:10px 0;white-space:pre-wrap;word-break:break-word}
+.prompt-preview{background:var(--bg);border:.5px solid var(--am);border-radius:var(--rm);padding:10px;font-size:14px;font-family:monospace;line-height:1.6;color:var(--tx2);margin:10px 0;white-space:pre-wrap;word-break:break-word}
 .csv-preview{overflow-x:auto;margin:8px 0}
-.csv-preview table{width:100%;border-collapse:collapse;font-size:12px}
+.csv-preview table{width:100%;border-collapse:collapse;font-size:14px}
 .csv-preview th,.csv-preview td{padding:4px 8px;border:.5px solid var(--bd);text-align:left}
 .csv-preview th{background:var(--bg2);font-weight:500}
 .res-card{background:var(--bg);border:.5px solid var(--bd);border-radius:var(--rr);padding:14px 16px;margin-bottom:8px}
 .res-bars{display:flex;gap:6px;margin-bottom:6px}
 .res-bar{flex:1;height:8px;border-radius:100px}
-.hard-card{background:var(--rl);border:.5px solid #F7C1C1;border-radius:var(--rm);padding:8px 12px;margin-bottom:6px;font-size:13px}
+.hard-card{background:var(--rl);border:.5px solid #F7C1C1;border-radius:var(--rm);padding:8px 12px;margin-bottom:6px;font-size:14px}
 </style>
 </head>
 <body>
@@ -201,11 +217,11 @@ label{font-size:13px;color:var(--tx2);display:block;margin-bottom:5px}
       <div class="fld"><label for="auth-pass">Mot de passe</label><input type="password" id="auth-pass" placeholder="Minimum 6 caractères" autocomplete="current-password"></div>
       <div id="auth-name-row" class="fld" style="display:none"><label for="auth-name">Ton prénom</label><input type="text" id="auth-name" placeholder="ex : Jean-François"></div>
       <button class="btn bp bw" id="auth-btn" onclick="doAuth()">Se connecter</button>
-      <div id="auth-forgot" style="text-align:center;margin-top:10px"><button class="btn" style="font-size:12px;padding:6px 12px" onclick="resetPwd()">Mot de passe oublié ?</button></div>
+      <div id="auth-forgot" style="text-align:center;margin-top:10px"><button class="btn" style="font-size:14px;padding:6px 12px" onclick="resetPwd()">Mot de passe oublié ?</button></div>
     </div>
     <div id="sf" style="display:none">
-      <div class="stu-steps"><ol><li>Écrire ton prénom.</li><li>Écrire le code donné par ton enseignant.</li><li>Cliquer sur « Accéder aux cartes ».</li></ol></div>
-      <div class="fld"><label for="sname">Ton prénom</label><input type="text" id="sname" placeholder="ex : Sophie"><small class="help">Ta progression est enregistrée sous ce prénom. Écrire le prénom de la même façon à chaque fois (majuscule comprise).</small></div>
+      <div class="stu-steps"><ol><li>Écrire ton prénom (ou ton code élève).</li><li>Écrire le code donné par ton enseignant.</li><li>Cliquer sur « Accéder aux cartes ».</li></ol></div>
+      <div class="fld"><label for="sname">Ton prénom ou ton code élève</label><input type="text" id="sname" placeholder="ex : Sophie ou E07" maxlength="30" autocomplete="off"><small class="help">Écrire seulement ton prénom, sans nom de famille. Si ton enseignant t'a donné un code élève, écrire ce code à la place. Ta progression est enregistrée sous ce nom : l'écrire de la même façon à chaque fois.</small></div>
       <div class="fld"><label for="scode">Code de la classe</label><input type="text" id="scode" class="code-input-big" placeholder="FWB-XXXX" maxlength="8" oninput="this.value=this.value.toUpperCase()"><small class="help">Le code est donné par ton enseignant (au tableau, sur une feuille ou par QR code).</small></div>
       <button class="btn bpu bw" id="sbtn2" onclick="studentLogin()">Accéder aux cartes</button>
     </div>
@@ -232,9 +248,9 @@ label{font-size:13px;color:var(--tx2);display:block;margin-bottom:5px}
     <span class="logo">Flash<b>PLAI</b></span>
     <img src="plai-logo.jpg" alt="PLAI" style="height:32px;object-fit:contain">
     <span id="user-name" class="hsub"></span>
-    <button class="btn" style="padding:5px 10px;font-size:12px;margin-left:8px" onclick="logout()">Déconnexion</button>
+    <button class="btn" style="padding:5px 10px;font-size:14px;margin-left:8px" onclick="logout()">Déconnexion</button>
   </div>
-  <div style="margin-bottom:16px"><button class="btn bp" onclick="openCreate(null)" style="font-size:15px;padding:10px 20px">+ Nouveau paquet</button></div>
+  <div style="margin-bottom:16px"><button class="btn bp" onclick="openCreate(null)" style="font-size:16px;padding:10px 20px">+ Nouveau paquet</button></div>
   <div id="deck-list"></div>
 </div>
 
@@ -248,24 +264,30 @@ label{font-size:13px;color:var(--tx2);display:block;margin-bottom:5px}
   </div>
   <div class="fld"><label>Nom du paquet</label><input type="text" id="dname" placeholder="ex : Vocabulaire anglais – Cycle 2"></div>
   <div class="row" style="margin-bottom:12px;gap:10px">
-    <div class="fld" style="flex:1;margin-bottom:0"><label>Langue recto</label><select id="dlangQ" class="lang-sel"></select></div>
-    <div class="fld" style="flex:1;margin-bottom:0"><label>Langue verso</label><select id="dlangA" class="lang-sel"></select></div>
-    <div class="fld" style="flex:1;margin-bottom:0"><label>Lecture TTS auto</label>
+    <div class="fld" style="flex:1 1 140px;margin-bottom:0"><label>Langue recto</label><select id="dlangQ" class="lang-sel"></select></div>
+    <div class="fld" style="flex:1 1 140px;margin-bottom:0"><label>Langue verso</label><select id="dlangA" class="lang-sel"></select></div>
+    <div class="fld" style="flex:1 1 140px;margin-bottom:0"><label>Lecture TTS auto</label>
       <select id="dtts"><option value="none">Aucune</option><option value="q">Recto seul</option><option value="a" selected>Verso seul</option><option value="both">Recto + Verso</option></select>
     </div>
-    <div class="fld" style="flex:1;margin-bottom:0"><label>Ordre des cartes</label>
+    <div class="fld" style="flex:1 1 140px;margin-bottom:0"><label>Ordre des cartes</label>
       <select id="dshuffle" onchange="toggleLeitnerOpts()"><option value="leitner">Leitner (par boîte)</option><option value="random">Aléatoire</option></select>
     </div>
   </div>
   <div id="leitner-opts" style="display:none;margin-bottom:12px;background:var(--bg2);border:.5px solid var(--bd);border-radius:var(--rm);padding:12px;gap:20px;flex-wrap:wrap">
-    <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--tx);cursor:pointer;margin-bottom:0">
+    <label style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--tx);cursor:pointer;margin-bottom:0">
       <input type="checkbox" id="dno-skip"> Progression sans saut de boîte
-      <span style="font-size:11px;color:var(--tx3)">(A revoir → Presque → Maitrisé)</span>
+      <span style="font-size:14px;color:var(--tx3)">(A revoir → Presque → Maitrisé)</span>
     </label>
-    <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--tx);cursor:pointer;margin-bottom:0">
+    <label style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--tx);cursor:pointer;margin-bottom:0">
       <input type="checkbox" id="dweighted"> Fréquence pondérée
-      <span style="font-size:11px;color:var(--tx3)">(56% A revoir · 28% Presque · 16% Maitrisé)</span>
+      <span style="font-size:14px;color:var(--tx3)">(56% A revoir · 28% Presque · 16% Maitrisé)</span>
     </label>
+    <div id="spaced-row" style="flex-basis:100%">
+      <label style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--tx);cursor:pointer;margin-bottom:0">
+        <input type="checkbox" id="dspaced"> Espacer les révisions dans le temps
+      </label>
+      <small class="help">Une carte « Presque » revient après 1 jour, une carte « Maîtrisé » après 3 jours ; une carte « A revoir » est toujours proposée. Ordre Leitner seulement. Ces délais sont des repères simples, pas des valeurs tirées d'une étude : adaptez-les à votre séquence.</small>
+    </div>
   </div>
   <div class="tabs">
     <button class="tab on" onclick="switchTab('form',this)">Saisie</button>
@@ -273,22 +295,22 @@ label{font-size:13px;color:var(--tx2);display:block;margin-bottom:5px}
     <button class="tab" onclick="switchTab('csv',this)">CSV</button>
     <button class="tab" onclick="switchTab('claude',this)">Claude</button>
   </div>
-  <div id="tab-form"><div id="card-list"></div><button class="btn bw" onclick="addCard()">+ Ajouter une carte</button></div>
+  <div id="tab-form"><div id="ai-note" class="ai-note" style="display:none"><strong>Cartes importées à relire.</strong> Si elles viennent d'une IA, elles peuvent contenir des erreurs ou rester génériques. Relire chaque carte, corriger, et ajouter vos exemples et vos mots avant de sauvegarder.<br><button type="button" class="btn bp" onclick="aiReviewed()">J'ai relu et adapté les cartes</button></div><div id="card-list"></div><button class="btn bw" onclick="addCard()">+ Ajouter une carte</button></div>
   <div id="tab-md" style="display:none">
     <div style="background:var(--bg2);border:.5px solid var(--bd);border-radius:var(--rm);padding:12px;margin-bottom:12px">
-      <div style="font-size:13px;font-weight:500;color:var(--tx2);margin-bottom:8px">Format attendu :</div>
+      <div style="font-size:14px;font-weight:500;color:var(--tx2);margin-bottom:8px">Format attendu :</div>
       <div class="code-mono">Q: Question<br>R: Réponse<br>IMAGE: https://url-optionnelle.jpg<br>---</div>
     </div>
     <div class="fld"><label>Colle ton texte ici :</label><textarea id="md-input" placeholder="Q: Ta question&#10;R: Ta réponse&#10;---"></textarea></div>
     <button class="btn bp bw" onclick="importMd()">Importer les cartes</button>
   </div>
   <div id="tab-csv" style="display:none">
-    <div style="background:var(--bg2);border:.5px solid var(--bd);border-radius:var(--rm);padding:12px;margin-bottom:12px;font-size:13px;color:var(--tx2)">Importe un fichier CSV (séparateur , ou ;).</div>
+    <div style="background:var(--bg2);border:.5px solid var(--bd);border-radius:var(--rm);padding:12px;margin-bottom:12px;font-size:14px;color:var(--tx2)">Importe un fichier CSV (séparateur , ou ;).</div>
     <div class="fld"><label>Fichier CSV</label><input type="file" id="csv-file" accept=".csv,.txt" style="padding:8px;border:.5px solid var(--bd2)" onchange="handleCSV(event)"></div>
     <div id="csv-config" style="display:none">
       <div class="row" style="margin-bottom:10px;gap:10px">
-        <div class="fld" style="flex:1;margin-bottom:0"><label>Colonne Question</label><select id="csv-col-q"></select></div>
-        <div class="fld" style="flex:1;margin-bottom:0"><label>Colonne Réponse</label><select id="csv-col-a"></select></div>
+        <div class="fld" style="flex:1 1 140px;margin-bottom:0"><label>Colonne Question</label><select id="csv-col-q"></select></div>
+        <div class="fld" style="flex:1 1 140px;margin-bottom:0"><label>Colonne Réponse</label><select id="csv-col-a"></select></div>
       </div>
       <div id="csv-preview-wrap" class="csv-preview"></div>
       <button class="btn bp bw" onclick="importCSV()" style="margin-top:10px">Importer les cartes</button>
@@ -296,14 +318,25 @@ label{font-size:13px;color:var(--tx2);display:block;margin-bottom:5px}
   </div>
   <div id="tab-claude" style="display:none">
     <div class="claude-box">
-      <div style="font-size:14px;font-weight:500;color:#412402;margin-bottom:10px">Générer avec Claude (gratuit)</div>
-      <div style="font-size:12px;color:#633806;margin-bottom:6px;font-weight:500">Prompt à copier :</div>
+      <div style="font-size:16px;font-weight:600;color:#412402;margin-bottom:6px">Préparer un brouillon avec une IA</div>
+      <p class="help" style="color:#633806">L'IA propose un brouillon. C'est vous qui y mettez le contexte de votre classe, puis qui relisez chaque carte avant de la sauvegarder.</p>
+      <div class="cl-field"><label for="cl-level">Niveau de la classe</label>
+        <select id="cl-level" onchange="buildPromptPreview()"><option value="">Non précisé</option><option>M1</option><option>M2</option><option>M3</option><option>P1</option><option>P2</option><option>P3</option><option>P4</option><option>P5</option><option>P6</option><option>S1</option><option>S2</option><option>S3</option><option>S4</option><option>S5</option><option>S6</option></select>
+        <small class="help">Le niveau règle le vocabulaire et la longueur des phrases (Fédération Wallonie-Bruxelles).</small></div>
+      <div class="cl-field"><label for="cl-n">Nombre de cartes</label>
+        <select id="cl-n" onchange="buildPromptPreview()"><option>5</option><option selected>10</option><option>15</option><option>20</option></select>
+        <small class="help">Mieux vaut peu de cartes relues sérieusement que beaucoup validées d'un clic.</small></div>
+      <div class="cl-field"><label for="cl-ctx">Ce que vous avez vu en classe (vos mots, vos exemples)</label>
+        <textarea id="cl-ctx" oninput="buildPromptPreview()" placeholder="ex : Nous avons vu les fractions équivalentes avec la tablette de chocolat. Plusieurs élèves confondent numérateur et dénominateur."></textarea>
+        <small class="help">C'est cette partie qui rend les cartes utiles à votre classe : sans elle, l'IA propose des cartes génériques. Ne pas écrire de nom d'élève.</small></div>
+      <div id="cl-warn" class="help" style="color:#791F1F;font-weight:500"></div>
+      <div style="font-size:16px;color:#633806;margin:8px 0 6px;font-weight:500">Prompt à copier :</div>
       <div class="prompt-preview" id="prompt-preview"></div>
       <div style="display:flex;gap:8px">
         <button class="btn bp" onclick="openClaude()" style="flex:1">Ouvrir Claude ↗</button>
         <button class="btn" onclick="copyPrompt()">Copier le prompt</button>
       </div>
-      <div style="font-size:11px;color:#633806;margin-top:8px;opacity:.7">Compte gratuit claude.ai suffisant · Aucune clé API requise</div>
+      <div style="font-size:16px;color:#633806;margin-top:8px">Compte gratuit claude.ai suffisant · Aucune clé API requise · Coller ensuite la réponse dans l'onglet Markdown.</div>
     </div>
   </div>
   <div class="div"></div>
@@ -319,7 +352,7 @@ label{font-size:13px;color:var(--tx2);display:block;margin-bottom:5px}
 <div id="vs" class="view">
   <div class="hdr">
     <button class="bback" onclick="exitStudy()">← Retour</button>
-    <span id="stitle" style="font-size:14px;font-weight:500;color:var(--tx2)"></span>
+    <span id="stitle" style="font-size:16px;font-weight:500;color:var(--tx2)"></span>
     <img src="plai-logo.jpg" alt="PLAI" style="height:28px;object-fit:contain;margin-left:auto">
     <span id="spg" class="hsub"></span>
   </div>
@@ -334,7 +367,7 @@ label{font-size:13px;color:var(--tx2);display:block;margin-bottom:5px}
   <div id="cview" style="display:none" class="complt">
     <span class="complt-icon">🎉</span>
     <h2 style="font-size:20px;font-weight:500;margin-bottom:6px">Série terminée !</h2>
-    <p id="cmsg" style="font-size:14px;color:var(--tx2);margin-bottom:20px"></p>
+    <p id="cmsg" style="font-size:16px;color:var(--tx2);margin-bottom:20px"></p>
     <div class="boxes" style="margin-bottom:20px">
       <div class="box bx1"><div class="bxn" id="cb1">0</div><div class="bxl">A revoir</div></div>
       <div class="box bx2"><div class="bxn" id="cb2">0</div><div class="bxl">Presque</div></div>
@@ -342,6 +375,7 @@ label{font-size:13px;color:var(--tx2);display:block;margin-bottom:5px}
     </div>
     <div class="row" style="justify-content:center">
       <button class="btn br" id="retry-btn" style="display:none" onclick="retryHard()">Retravailler les difficiles</button>
+      <button class="btn" id="all-btn" style="display:none" onclick="reviewAll()">Tout réviser quand même</button>
       <button class="btn bp" onclick="restartStudy()">Recommencer</button>
     </div>
   </div>
@@ -363,24 +397,32 @@ label{font-size:13px;color:var(--tx2);display:block;margin-bottom:5px}
   <div class="modal">
     <button class="modal-close" onclick="closeQR()">✕</button>
     <h3 style="font-size:16px;font-weight:600;margin-bottom:4px">Code de classe</h3>
-    <p id="qr-deck-name" style="font-size:13px;color:var(--tx2);margin-bottom:8px"></p>
+    <p id="qr-deck-name" style="font-size:14px;color:var(--tx2);margin-bottom:8px"></p>
     <div class="code-badge" id="qr-code-text"></div>
     <div id="qr-container" style="display:flex;justify-content:center;margin:12px 0"></div>
-    <p style="font-size:12px;color:var(--tx2);text-align:center;margin-bottom:12px">Les élèves scannent le QR code ou saisissent le code sur <strong>flashfwb.vercel.app</strong></p>
+    <p style="font-size:14px;color:var(--tx2);text-align:center;margin-bottom:12px">Les élèves scannent le QR code ou saisissent le code sur <strong>flashfwb.vercel.app</strong></p>
     <div style="display:flex;gap:8px;margin-bottom:10px">
       <button class="btn bp" style="flex:1" onclick="copyCode()">Copier le code</button>
       <button class="btn" style="flex:1" onclick="printQR()">Imprimer</button>
     </div>
+    <details class="stu-codes">
+      <summary>Ne pas enregistrer de prénoms ? Utiliser des codes élèves</summary>
+      <p class="help">Par défaut, les élèves saisissent leur prénom. Pour ne stocker aucun prénom, donner à chaque élève un code personnel (E01, E02…) à saisir à la place. Vous seul gardez la correspondance code ↔ élève.</p>
+      <label for="sc-n">Nombre d'élèves de la classe</label>
+      <input type="text" id="sc-n" inputmode="numeric" value="25" maxlength="2">
+      <button class="btn bw" onclick="printStudentCodes()">Imprimer la liste des codes</button>
+    </details>
     <div class="div"></div>
     <div style="display:flex;align-items:center;gap:10px">
-      <span style="font-size:13px;color:var(--tx2);flex:1">Désactiver ce code</span>
-      <button class="btn br" style="padding:6px 12px;font-size:12px" onclick="deactivateCode()">Désactiver</button>
+      <span style="font-size:14px;color:var(--tx2);flex:1">Désactiver ce code</span>
+      <button class="btn br" style="padding:6px 12px;font-size:14px" onclick="deactivateCode()">Désactiver</button>
     </div>
   </div>
 </div>
 
 <input type="file" id="img-picker" accept="image/*" style="display:none" onchange="handleImgPick(event)">
 <div id="toast-el" class="toast"></div>
+<button type="button" id="dys-toggle" class="dys-fab" aria-pressed="false" onclick="toggleDys()">Aa Lecture facilitée</button>
 </div>
 
 <script>
@@ -393,11 +435,15 @@ let studyDeck=null,studyQueue=[],studyIdx=0,studyCards=[];
 let openPanels=new Set(),imgCtx=null,activeRec=null,sAudio=null,toastTimer=null;
 let authMode='login',isStudent=false,sName='',sCodeId='',sCodeStr='',isRecovery=false;
 let csvParsed=null,activeCodeId=null,activeCodeStr='';
+let hasSpaced=true,spacingOff=false,studySkipped=0,aiPending=false;
+const SPACING_DAYS={1:0,2:1,3:3};
 
 const LANGS=[{v:'fr-BE',l:'Français – BE'},{v:'fr-FR',l:'Français – FR'},{v:'en-GB',l:'Anglais (UK)'},{v:'en-US',l:'Anglais (US)'},{v:'nl-BE',l:'Néerlandais – BE'},{v:'nl-NL',l:'Néerlandais – NL'},{v:'de-DE',l:'Allemand'},{v:'es-ES',l:'Espagnol'},{v:'it-IT',l:'Italien'},{v:'pt-PT',l:'Portugais'},{v:'ar',l:'Arabe'},{v:'zh-CN',l:'Chinois'},{v:'ja-JP',l:'Japonais'}];
 
 function uid(){return'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return(c==='x'?r:(r&3|8)).toString(16)})}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
+function setDys(on){document.body.classList.toggle('dys',on);const b=document.getElementById('dys-toggle');if(b)b.setAttribute('aria-pressed',on?'true':'false')}
+function toggleDys(){const on=!document.body.classList.contains('dys');setDys(on);try{localStorage.setItem('flashplai_dys',on?'1':'0')}catch{}}
 function toast(m){const el=document.getElementById('toast-el');el.textContent=m;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2800)}
 function showV(v){document.querySelectorAll('.view').forEach(e=>e.classList.remove('active'));document.getElementById(v).classList.add('active')}
 function populateLangSelects(){const h=LANGS.map(o=>`<option value="${o.v}">${o.l}</option>`).join('');document.querySelectorAll('.lang-sel').forEach(s=>s.innerHTML=h)}
@@ -476,18 +522,22 @@ async function updatePwd(){
   showV('vh');
 }
 
+function normId(s){return(s||'').replace(/\s+/g,' ').trim().slice(0,30)}
 async function studentLogin(){
-  const name=document.getElementById('sname').value.trim();
+  const name=normId(document.getElementById('sname').value);
   const code=document.getElementById('scode').value.trim().toUpperCase();
-  if(!name){toast('Entre ton prénom');return}
+  if(!name){toast('Entre ton prénom ou ton code élève');return}
   if(code.length<4){toast('Entre le code de classe');return}
   const btn=document.getElementById('sbtn2');
   btn.disabled=true;btn.innerHTML='<div class="spin"></div>';
   try{
     const{data,error}=await sb.from('class_codes').select('id,deck_id').eq('code',code).eq('active',true).single();
     if(error||!data){toast('Code invalide ou expiré');return}
-    sName=name;sCodeId=data.id;sCodeStr=code;
-    sessionStorage.setItem('ffwb_s',JSON.stringify({name,codeId:data.id,code}));
+    // Même identifiant écrit avec une autre casse (Sophie / sophie) : on reprend l'orthographe déjà enregistrée
+    let known=null;
+    try{const{data:ex}=await sb.from('student_progress').select('student_name').eq('code_id',data.id).ilike('student_name',name.replace(/[\\%_]/g,m=>'\\'+m)).limit(1);known=ex&&ex[0]?ex[0].student_name:null}catch{}
+    sName=known||name;sCodeId=data.id;sCodeStr=code;
+    sessionStorage.setItem('ffwb_s',JSON.stringify({name:sName,codeId:data.id,code}));
     await openStudentDeck(data.deck_id);
   }catch(e){toast('Erreur : '+e.message)}
   finally{btn.disabled=false;btn.textContent='Accéder aux cartes'}
@@ -500,7 +550,7 @@ async function openStudentDeck(deckId){
   const{data:prog}=await sb.from('student_progress').select('card_id,box,last_seen').eq('code_id',sCodeId).eq('student_name',sName);
   const pm={};(prog||[]).forEach(p=>{pm[p.card_id]={box:p.box,lastSeen:p.last_seen}});
   const d={id:deck.id,name:deck.name,langQ:deck.lang_q,langA:deck.lang_a,tts:deck.tts,shuffle:deck.shuffle||'leitner',
-    noSkipBox:!!deck.no_skip_box,weightedReview:!!deck.weighted_review,
+    noSkipBox:!!deck.no_skip_box,weightedReview:!!deck.weighted_review,spaced:!!deck.spaced,
     cards:(cards||[]).map(c=>mapCard(c,pm[c.id]))};
   isStudent=true;
   document.getElementById('student-bar').style.display='block';
@@ -531,7 +581,9 @@ sb.auth.onAuthStateChange(async(event,session)=>{
 });
 
 async function loadDecks(){
-  const{data,error}=await sb.from('decks').select('id,name,lang_q,lang_a,tts,shuffle,no_skip_box,weighted_review,created_at').order('created_at',{ascending:false});
+  const base='id,name,lang_q,lang_a,tts,shuffle,no_skip_box,weighted_review,created_at';
+  let{data,error}=await sb.from('decks').select(base+(hasSpaced?',spaced':'')).order('created_at',{ascending:false});
+  if(error&&hasSpaced&&/spaced/i.test(error.message||'')){hasSpaced=false;({data,error}=await sb.from('decks').select(base).order('created_at',{ascending:false}))}
   if(error)throw error;
   const ids=(data||[]).map(d=>d.id);
   let allCards=[];
@@ -542,17 +594,17 @@ async function loadDecks(){
   }
   decks=(data||[]).map(d=>({
     id:d.id,name:d.name,langQ:d.lang_q,langA:d.lang_a,tts:d.tts,shuffle:d.shuffle||'leitner',
-    noSkipBox:!!d.no_skip_box,weightedReview:!!d.weighted_review,
+    noSkipBox:!!d.no_skip_box,weightedReview:!!d.weighted_review,spaced:!!d.spaced,
     createdAt:new Date(d.created_at).getTime(),
     cards:allCards.filter(c=>c.deck_id===d.id).map(c=>mapCard(c,null))
   }));
   renderDecks();
 }
 
-async function saveDeckCloud(name,langQ,langA,tts,shuffle,cards,noSkipBox,weightedReview){
+async function saveDeckCloud(name,langQ,langA,tts,shuffle,cards,noSkipBox,weightedReview,spaced){
   const id=editId||uid();
   console.log('[SAVE] 1/3 upsert deck...',id.slice(0,8));
-  const{error:de}=await sb.from('decks').upsert({id,user_id:user.id,name,lang_q:langQ,lang_a:langA,tts,shuffle,no_skip_box:!!noSkipBox,weighted_review:!!weightedReview});
+  const{error:de}=await sb.from('decks').upsert({id,user_id:user.id,name,lang_q:langQ,lang_a:langA,tts,shuffle,no_skip_box:!!noSkipBox,weighted_review:!!weightedReview,...(hasSpaced?{spaced:!!spaced}:{})});
   if(de){console.error('[SAVE] deck error:',de.message);throw de;}
   console.log('[SAVE] 2/3 deck ok — upsert',cards.length,'cartes...');
   if(editId){
@@ -610,6 +662,15 @@ function printQR(){
   w.document.write('<html><body style="text-align:center;font-family:sans-serif;padding:40px"><h2>FlashPLAI — Code de classe</h2><p style="margin:8px 0 16px">'+esc(document.getElementById('qr-deck-name').textContent)+'</p><img src="'+canvas.toDataURL()+'" style="width:200px;height:200px"><br><div style="font-size:28px;font-weight:700;letter-spacing:4px;margin:12px 0;font-family:monospace">'+activeCodeStr+'</div><p style="color:#666">flashfwb.vercel.app</p></body></html>');
   w.document.close();w.print();
 }
+function printStudentCodes(){
+  const n=Math.max(1,Math.min(40,parseInt(document.getElementById('sc-n').value)||0));
+  if(!n){toast('Indique un nombre entre 1 et 40');return}
+  const w=window.open('','_blank');if(!w){toast('Autorise l\'ouverture de fenêtres pour imprimer');return}
+  let cells='';
+  for(let i=1;i<=n;i++){const c='E'+String(i).padStart(2,'0');cells+='<div style="border:1px dashed #999;padding:12px;text-align:center"><div style="font-size:26px;font-weight:700;font-family:monospace">'+c+'</div><div style="font-size:16px;margin-top:6px">Classe : <b>'+esc(activeCodeStr)+'</b></div><div style="font-size:14px;color:#555">flashfwb.vercel.app</div></div>'}
+  w.document.write('<html><body style="font-family:Arial,sans-serif;padding:24px"><h2>FlashPLAI — codes élèves</h2><p style="margin:6px 0 14px;font-size:16px">À découper. Garder pour vous la liste « code ↔ élève » : elle n\'est enregistrée nulle part dans FlashPLAI.</p><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">'+cells+'</div></body></html>');
+  w.document.close();w.print();
+}
 async function deactivateCode(){
   if(!confirm('Désactiver ce code ?'))return;
   await sb.from('class_codes').update({active:false}).eq('id',activeCodeId);
@@ -617,6 +678,12 @@ async function deactivateCode(){
 }
 
 // RESULTS
+function detailCards(deck,s){
+  const list=ids=>ids.map(id=>deck?.cards.find(c=>c.id===id)).filter(Boolean).map(c=>'<li>'+esc(c.question)+'</li>').join('');
+  const l1=list(s.c1),l2=list(s.c2);
+  if(!l1&&!l2)return'';
+  return'<details class="res-det"><summary>Voir quelles cartes (à revoir : '+s.c1.length+', presque : '+s.c2.length+')</summary>'+(l1?'<h4>À revoir</h4><ul>'+l1+'</ul>':'')+(l2?'<h4>Presque</h4><ul>'+l2+'</ul>':'')+'</details>';
+}
 async function openResults(deckId,deckName){
   document.getElementById('rtitle').textContent=deckName;
   document.getElementById('results-content').innerHTML='<div class="empty"><div class="spin" style="width:20px;height:20px;margin:0 auto"></div><p>Chargement…</p></div>';
@@ -625,15 +692,15 @@ async function openResults(deckId,deckName){
   if(!codeData){document.getElementById('results-content').innerHTML='<div class="empty"><div style="font-size:32px">📊</div><p>Aucun code de classe actif pour ce paquet.</p></div>';return}
   const{data:progress}=await sb.from('student_progress').select('student_name,card_id,box,last_seen').eq('code_id',codeData.id);
   if(!progress||!progress.length){
-    document.getElementById('results-content').innerHTML='<div style="background:var(--tl);border:.5px solid #9FE1CB;border-radius:var(--rm);padding:12px;font-size:13px;color:#085041">Code actif : <strong>'+codeData.code+'</strong> — Aucun élève n\'a encore révisé.</div>';
+    document.getElementById('results-content').innerHTML='<div style="background:var(--tl);border:.5px solid #9FE1CB;border-radius:var(--rm);padding:12px;font-size:14px;color:#085041">Code actif : <strong>'+codeData.code+'</strong> — Aucun élève n\'a encore révisé.</div>';
     return;
   }
   const deck=decks.find(d=>d.id===deckId);const total=deck?.cards.length||0;
   const students={};
   for(const p of progress){
-    if(!students[p.student_name])students[p.student_name]={b1:0,b2:0,b3:0,last:null};
-    if(p.box===1)students[p.student_name].b1++;
-    else if(p.box===2)students[p.student_name].b2++;
+    if(!students[p.student_name])students[p.student_name]={b1:0,b2:0,b3:0,last:null,c1:[],c2:[]};
+    if(p.box===1){students[p.student_name].b1++;students[p.student_name].c1.push(p.card_id)}
+    else if(p.box===2){students[p.student_name].b2++;students[p.student_name].c2.push(p.card_id)}
     else students[p.student_name].b3++;
     const d=new Date(p.last_seen);
     if(!students[p.student_name].last||d>students[p.student_name].last)students[p.student_name].last=d;
@@ -645,17 +712,17 @@ async function openResults(deckId,deckName){
   }
   const hardCards=Object.entries(cardBoxes).filter(([,v])=>v.total>0&&v.b1/v.total>=0.5).map(([cid])=>deck?.cards.find(c=>c.id===cid)).filter(Boolean);
   const nb=Object.keys(students).length;
-  let html='<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap"><div style="background:var(--tl);border:.5px solid #9FE1CB;border-radius:var(--rm);padding:8px 14px;font-size:13px;color:#085041">Code : <strong>'+codeData.code+'</strong></div><div style="font-size:13px;color:var(--tx2)">'+nb+' élève'+(nb>1?'s':'')+' · '+total+' cartes</div></div>';
-  html+='<div style="font-size:13px;font-weight:500;color:var(--tx2);margin-bottom:8px">Progression par élève</div>';
+  let html='<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap"><div style="background:var(--tl);border:.5px solid #9FE1CB;border-radius:var(--rm);padding:8px 14px;font-size:14px;color:#085041">Code : <strong>'+codeData.code+'</strong></div><div style="font-size:14px;color:var(--tx2)">'+nb+' élève'+(nb>1?'s':'')+' · '+total+' cartes</div></div>';
+  html+='<div style="font-size:14px;font-weight:500;color:var(--tx2);margin-bottom:8px">Progression par élève</div>';
   const sorted=Object.entries(students).sort((a,b)=>b[1].b3-a[1].b3);
   for(const[name,s] of sorted){
     const done=s.b1+s.b2+s.b3;
     const lastStr=s.last?s.last.toLocaleDateString('fr-BE',{day:'2-digit',month:'2-digit',year:'numeric'}):'–';
-    html+='<div class="res-card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><span style="font-size:14px;font-weight:500">'+esc(name)+'</span><span style="font-size:11px;color:var(--tx3)">Dernière révision : '+lastStr+'</span></div><div class="res-bars"><div class="res-bar" style="background:#E24B4A;flex:'+(s.b1||0.5)+'"></div><div class="res-bar" style="background:#EF9F27;flex:'+(s.b2||0.5)+'"></div><div class="res-bar" style="background:#1D9E75;flex:'+(s.b3||0.5)+'"></div></div><div style="display:flex;gap:12px;font-size:11px;color:var(--tx2)"><span style="color:#791F1F">■ '+s.b1+' à revoir</span><span style="color:#633806">■ '+s.b2+' presque</span><span style="color:#085041">■ '+s.b3+' maîtrisées</span><span style="margin-left:auto">'+done+'/'+total+'</span></div></div>';
+    html+='<div class="res-card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><span style="font-size:16px;font-weight:500">'+esc(name)+'</span><span style="font-size:14px;color:var(--tx3)">Dernière révision : '+lastStr+'</span></div><div class="res-bars"><div class="res-bar" style="background:#E24B4A;flex:'+(s.b1||0.5)+'"></div><div class="res-bar" style="background:#EF9F27;flex:'+(s.b2||0.5)+'"></div><div class="res-bar" style="background:#1D9E75;flex:'+(s.b3||0.5)+'"></div></div><div style="display:flex;gap:12px;font-size:14px;color:var(--tx2)"><span style="color:#791F1F">■ '+s.b1+' à revoir</span><span style="color:#633806">■ '+s.b2+' presque</span><span style="color:#085041">■ '+s.b3+' maîtrisées</span><span style="margin-left:auto">'+done+'/'+total+'</span></div>'+detailCards(deck,s)+'</div>';
   }
   if(hardCards.length){
-    html+='<div style="font-size:13px;font-weight:500;color:var(--tx2);margin:16px 0 8px">Cartes difficiles (≥ 50% en boîte 1)</div>';
-    for(const c of hardCards)html+='<div class="hard-card"><b>Q :</b> '+esc(c.question)+'<br><span style="color:#555;font-size:12px">R : '+esc(c.answer)+'</span></div>';
+    html+='<div style="font-size:14px;font-weight:500;color:var(--tx2);margin:16px 0 8px">Cartes difficiles (≥ 50% en boîte 1)</div>';
+    for(const c of hardCards)html+='<div class="hard-card"><b>Q :</b> '+esc(c.question)+'<br><span style="color:#555;font-size:14px">R : '+esc(c.answer)+'</span></div>';
   }
   document.getElementById('results-content').innerHTML=html;
 }
@@ -667,7 +734,7 @@ function renderDecks(){
   el.innerHTML=decks.map(d=>{
     const pct=d.cards.length?Math.round(d.cards.filter(c=>c.box===3).length/d.cards.length*100):0;
     const langInfo=d.langQ!==d.langA?d.langQ+' / '+d.langA:d.langQ||'fr-BE';
-    return'<div class="di"><div class="di-main" onclick="openStudy(\''+d.id+'\')"><div style="font-size:15px;font-weight:500;margin-bottom:2px">'+esc(d.name)+'</div><div style="font-size:12px;color:var(--tx2)">'+d.cards.length+' cartes · '+pct+'% maîtrisées · '+langInfo+'</div></div><div class="di-btns"><button class="btn bpu" style="padding:6px 8px;font-size:11px" onclick="openCodeModal(\''+d.id+'\',\''+esc(d.name)+'\')">QR / Code</button><button class="btn bt" style="padding:6px 8px;font-size:11px" onclick="openResults(\''+d.id+'\',\''+esc(d.name)+'\')">Résultats</button><button class="btn" style="padding:6px 8px;font-size:11px" onclick="openCreate(\''+d.id+'\')">Modifier</button><button class="btn br" style="padding:6px 8px;font-size:11px" onclick="delDeck(\''+d.id+'\')">Suppr.</button></div></div>';
+    return'<div class="di"><div class="di-main" onclick="openStudy(\''+d.id+'\')"><div style="font-size:16px;font-weight:500;margin-bottom:2px">'+esc(d.name)+'</div><div style="font-size:14px;color:var(--tx2)">'+d.cards.length+' cartes · '+pct+'% maîtrisées · '+langInfo+'</div></div><div class="di-btns"><button class="btn bpu" style="padding:6px 8px;font-size:14px" onclick="openCodeModal(\''+d.id+'\',\''+esc(d.name)+'\')">QR / Code</button><button class="btn bt" style="padding:6px 8px;font-size:14px" onclick="openResults(\''+d.id+'\',\''+esc(d.name)+'\')">Résultats</button><button class="btn" style="padding:6px 8px;font-size:14px" onclick="openCreate(\''+d.id+'\')">Modifier</button><button class="btn br" style="padding:6px 8px;font-size:14px" onclick="delDeck(\''+d.id+'\')">Suppr.</button></div></div>';
   }).join('');
 }
 
@@ -693,6 +760,9 @@ function openCreate(id){
   document.getElementById('dshuffle').value=d?.shuffle||'leitner';
   document.getElementById('dno-skip').checked=d?.noSkipBox||false;
   document.getElementById('dweighted').checked=d?.weightedReview||false;
+  document.getElementById('dspaced').checked=d?.spaced||false;
+  document.getElementById('spaced-row').style.display=hasSpaced?'':'none';
+  aiPending=false;document.getElementById('ai-note').style.display='none';
   toggleLeitnerOpts();
   editCards=d?d.cards.map(c=>({...c})):[];
   document.getElementById('md-input').value='';
@@ -733,7 +803,7 @@ function mSec(i,side,label){
   const aud=side==='q'?c.qAud:c.aAud;
   const isRec=activeRec&&activeRec.id===id&&activeRec.side===side;
   const displayImg=img||imgUrl;
-  return '<div><div class="mslbl">'+label+'</div><div class="mc">'+(displayImg?'<img src="'+esc(displayImg)+'" class="ithumb" alt=""><button class="ib" onclick="removeImg(\''+id+'\',\''+side+'\')">✕ image</button>':'<button class="ib" onclick="pickImg(\''+id+'\',\''+side+'\')">+ Upload</button><button class="ib" onclick="showUrlInput(\''+id+'\',\''+side+'\')">+ URL</button><button class="ib" onclick="showArasaac(\''+id+'\',\''+side+'\')">🔤 ARASAAC</button>')+(aud?'<audio src="'+aud+'" controls style="height:26px;max-width:150px"></audio><button class="ib" onclick="removeAud(\''+id+'\',\''+side+'\')">✕ son</button>':'<button class="ib'+(isRec?' ibrec pulsing':'')+'" id="rb-'+id+'-'+side+'" onclick="toggleRec(\''+id+'\',\''+side+'\')">'+(isRec?'■ Stop':'🎤 Micro')+'</button><button class="ib" onclick="ttsPrev(\''+id+'\',\''+side+'\')">▶ TTS</button>')+'</div><div id="url-input-'+id+'-'+side+'" style="display:none;margin-top:6px"><div style="display:flex;gap:6px"><input type="text" placeholder="https://..." id="url-val-'+id+'-'+side+'" style="flex:1;font-size:12px;padding:5px 8px"><button class="ib" onclick="applyUrl(\''+id+'\',\''+side+'\')">OK</button></div><div id="url-preview-'+id+'-'+side+'"></div></div><div id="arasaac-panel-'+id+'-'+side+'" style="display:none;margin-top:6px"><div style="display:flex;gap:6px;margin-bottom:6px"><input type="text" placeholder="Recherche ARASAAC..." id="arasaac-q-'+id+'-'+side+'" style="flex:1;font-size:12px;padding:5px 8px" onkeydown="if(event.key===\'Enter\')searchArasaac(\''+id+'\',\''+side+'\')"><select id="arasaac-lang-'+id+'-'+side+'" style="font-size:12px;padding:5px 6px;width:80px"><option value="fr">FR</option><option value="en">EN</option></select><button class="ib" onclick="searchArasaac(\''+id+'\',\''+side+'\')">Chercher</button></div><div id="arasaac-results-'+id+'-'+side+'" style="display:flex;flex-wrap:wrap;gap:6px"></div></div></div>';
+  return '<div><div class="mslbl">'+label+'</div><div class="mc">'+(displayImg?'<img src="'+esc(displayImg)+'" class="ithumb" alt=""><button class="ib" onclick="removeImg(\''+id+'\',\''+side+'\')">✕ image</button>':'<button class="ib" onclick="pickImg(\''+id+'\',\''+side+'\')">+ Upload</button><button class="ib" onclick="showUrlInput(\''+id+'\',\''+side+'\')">+ URL</button><button class="ib" onclick="showArasaac(\''+id+'\',\''+side+'\')">🔤 ARASAAC</button>')+(aud?'<audio src="'+aud+'" controls style="height:26px;max-width:150px"></audio><button class="ib" onclick="removeAud(\''+id+'\',\''+side+'\')">✕ son</button>':'<button class="ib'+(isRec?' ibrec pulsing':'')+'" id="rb-'+id+'-'+side+'" onclick="toggleRec(\''+id+'\',\''+side+'\')">'+(isRec?'■ Stop':'🎤 Micro')+'</button><button class="ib" onclick="ttsPrev(\''+id+'\',\''+side+'\')">▶ TTS</button>')+'</div><div id="url-input-'+id+'-'+side+'" style="display:none;margin-top:6px"><div style="display:flex;gap:6px"><input type="text" placeholder="https://..." id="url-val-'+id+'-'+side+'" style="flex:1;font-size:14px;padding:5px 8px"><button class="ib" onclick="applyUrl(\''+id+'\',\''+side+'\')">OK</button></div><div id="url-preview-'+id+'-'+side+'"></div></div><div id="arasaac-panel-'+id+'-'+side+'" style="display:none;margin-top:6px"><div style="display:flex;gap:6px;margin-bottom:6px"><input type="text" placeholder="Recherche ARASAAC..." id="arasaac-q-'+id+'-'+side+'" style="flex:1;font-size:14px;padding:5px 8px" onkeydown="if(event.key===\'Enter\')searchArasaac(\''+id+'\',\''+side+'\')"><select id="arasaac-lang-'+id+'-'+side+'" style="font-size:14px;padding:5px 6px;width:80px"><option value="fr">FR</option><option value="en">EN</option></select><button class="ib" onclick="searchArasaac(\''+id+'\',\''+side+'\')">Chercher</button></div><div id="arasaac-results-'+id+'-'+side+'" style="display:flex;flex-wrap:wrap;gap:6px"></div></div></div>';
 }
 
 function toggleMP(id){
@@ -776,7 +846,7 @@ function applyUrl(id,side){
   if(!val){toast('Entre une URL valide');return}
   const i=editCards.findIndex(c=>c.id===id);if(i<0)return;
   const prev=document.getElementById('url-preview-'+id+'-'+side);
-  if(prev)prev.innerHTML='<img src="'+esc(val)+'" style="height:44px;border-radius:var(--rm);border:.5px solid var(--bd)" onerror="this.parentNode.innerHTML=\'<span style=font-size:11px;color:#E24B4A>URL inaccessible</span>\'" alt="">';
+  if(prev)prev.innerHTML='<img src="'+esc(val)+'" style="height:44px;border-radius:var(--rm);border:.5px solid var(--bd)" onerror="this.parentNode.innerHTML=\'<span style=font-size:14px;color:#E24B4A>URL inaccessible</span>\'" alt="">';
   if(side==='q'){editCards[i].qImg=null;editCards[i].qImgUrl=val}
   else{editCards[i].aImg=null;editCards[i].aImgUrl=val}
   openPanels.add(id);
@@ -798,13 +868,13 @@ async function searchArasaac(id,side){
     const r=await fetch('https://api.arasaac.org/api/pictograms/'+lang+'/search/'+encodeURIComponent(q));
     if(!r.ok)throw new Error('Aucun résultat');
     const data=await r.json();const top=(data||[]).slice(0,8);
-    if(!top.length){res.innerHTML='<span style="font-size:11px;color:var(--tx3)">Aucun pictogramme trouvé</span>';return}
+    if(!top.length){res.innerHTML='<span style="font-size:14px;color:var(--tx3)">Aucun pictogramme trouvé</span>';return}
     res.innerHTML=top.map(p=>{
       const imgUrl='https://static.arasaac.org/pictograms/arasaac/'+p._id+'/'+p._id+'_500.png';
       const kw=esc((p.keywords&&p.keywords[0])?p.keywords[0].keyword:q);
-      return'<div style="cursor:pointer;text-align:center" onclick="selectArasaac(\''+id+'\',\''+side+'\',\''+imgUrl+'\',\''+kw+'\')"><img src="'+imgUrl+'" style="width:52px;height:52px;border:.5px solid var(--bd);border-radius:var(--rm);object-fit:contain;background:#fff" alt="'+kw+'"><div style="font-size:10px;color:var(--tx3);max-width:52px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+kw+'</div></div>';
+      return'<div style="cursor:pointer;text-align:center" onclick="selectArasaac(\''+id+'\',\''+side+'\',\''+imgUrl+'\',\''+kw+'\')"><img src="'+imgUrl+'" style="width:52px;height:52px;border:.5px solid var(--bd);border-radius:var(--rm);object-fit:contain;background:#fff" alt="'+kw+'"><div style="font-size:14px;color:var(--tx3);max-width:52px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+kw+'</div></div>';
     }).join('');
-  }catch(e){res.innerHTML='<span style="font-size:11px;color:#E24B4A">'+e.message+'</span>'}
+  }catch(e){res.innerHTML='<span style="font-size:14px;color:#E24B4A">'+e.message+'</span>'}
 }
 function selectArasaac(id,side,imgUrl,label){
   const i=editCards.findIndex(c=>c.id===id);if(i<0)return;
@@ -893,7 +963,7 @@ function parseMd(txt){
 function importMd(){
   const parsed=parseMd(document.getElementById('md-input').value);
   if(!parsed.length){toast('Aucune carte trouvée');return}
-  editCards=[...editCards,...parsed];document.getElementById('md-input').value='';
+  editCards=[...editCards,...parsed];document.getElementById('md-input').value='';aiPending=true;document.getElementById('ai-note').style.display='block';
   document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('on',i===0));
   ['tab-form','tab-md','tab-csv','tab-claude'].forEach((id,i)=>document.getElementById(id).style.display=i===0?'block':'none');
   redrawCards();toast(parsed.length+' cartes importées');
@@ -904,32 +974,44 @@ function buildPrompt(){
   const name=document.getElementById('dname').value.trim();
   const lq=document.getElementById('dlangQ').value,la=document.getElementById('dlangA').value;
   const lb=l=>LANGS.find(x=>x.v===l)?.l||l;const s=name||'[ton thème ici]';
-  if(lq!==la)return'Génère 10 flashcards bilingues sur le thème : '+s+'.\nRecto en '+lb(lq)+', verso en '+lb(la)+'.\n\nFormat strict — une carte par bloc, séparés par ---\n\nQ: [mot ou phrase en '+lb(lq)+']\nR: [traduction en '+lb(la)+']\n---\n\nCommence directement par la première carte, sans introduction.';
-  return'Génère 10 flashcards en '+lb(lq)+' sur le thème : '+s+'.\n\nFormat strict — une carte par bloc, séparés par ---\n\nQ: [question courte]\nR: [réponse concise]\n---\n\nCommence directement par la première carte, sans introduction.';
+  const n=document.getElementById('cl-n')?.value||'10';
+  const lvl=document.getElementById('cl-level')?.value||'';
+  const ctx=(document.getElementById('cl-ctx')?.value||'').trim();
+  const pub=lvl?'\nPublic : élèves de '+lvl+' en Fédération Wallonie-Bruxelles. Adapter le vocabulaire et la longueur des phrases à ce niveau.':'';
+  const cx=ctx?'\nContexte de ma classe, à utiliser dans les questions et les exemples :\n'+ctx+'\n':'';
+  if(lq!==la)return'Génère '+n+' flashcards bilingues sur le thème : '+s+'.\nRecto en '+lb(lq)+', verso en '+lb(la)+'.'+pub+cx+'\nFormat strict — une carte par bloc, séparés par ---\n\nQ: [mot ou phrase en '+lb(lq)+']\nR: [traduction en '+lb(la)+']\n---\n\nCommence directement par la première carte, sans introduction.';
+  return'Génère '+n+' flashcards en '+lb(lq)+' sur le thème : '+s+'.'+pub+cx+'\nFormat strict — une carte par bloc, séparés par ---\n\nQ: [question courte]\nR: [réponse concise]\n---\n\nCommence directement par la première carte, sans introduction.';
 }
-function buildPromptPreview(){const el=document.getElementById('prompt-preview');if(el)el.textContent=buildPrompt()}
+function buildPromptPreview(){
+  const el=document.getElementById('prompt-preview');if(el)el.textContent=buildPrompt();
+  const w=document.getElementById('cl-warn');
+  if(w)w.textContent=(document.getElementById('cl-ctx').value.trim()?'':'Contexte de classe vide : les cartes risquent d\'être génériques.');
+}
+function aiReviewed(){aiPending=false;document.getElementById('ai-note').style.display='none';toast('Cartes marquées comme relues')}
+function guardAi(){return!aiPending||confirm('Les cartes importées n\'ont pas été relues. Sauvegarder quand même ?')}
 function openClaude(){window.open('https://claude.ai/new?q='+encodeURIComponent(buildPrompt()),'_blank')}
 function copyPrompt(){navigator.clipboard.writeText(buildPrompt()).then(()=>toast('Prompt copié !'))}
 
 // SAVE
-function getDeckData(){return{name:document.getElementById('dname').value.trim(),langQ:document.getElementById('dlangQ').value,langA:document.getElementById('dlangA').value,tts:document.getElementById('dtts').value,shuffle:document.getElementById('dshuffle').value,noSkipBox:document.getElementById('dno-skip').checked,weightedReview:document.getElementById('dweighted').checked,cards:editCards.filter(c=>c.question.trim()&&c.answer.trim())}}
+function getDeckData(){return{name:document.getElementById('dname').value.trim(),langQ:document.getElementById('dlangQ').value,langA:document.getElementById('dlangA').value,tts:document.getElementById('dtts').value,shuffle:document.getElementById('dshuffle').value,noSkipBox:document.getElementById('dno-skip').checked,weightedReview:document.getElementById('dweighted').checked,spaced:document.getElementById('dspaced').checked,cards:editCards.filter(c=>c.question.trim()&&c.answer.trim())}}
 function withTimeout(promise,ms){
   return Promise.race([promise,new Promise((_,rej)=>setTimeout(()=>rej(new Error('Délai dépassé ('+ms/1000+'s) — ouvre DevTools > Console pour voir où ça bloque')),ms))]);
 }
-function updateLocalDeck(id,name,langQ,langA,tts,shuffle,noSkipBox,weightedReview,cards){
-  const saved={id,name,langQ,langA,tts,shuffle,noSkipBox,weightedReview,createdAt:Date.now(),cards:[...cards]};
+function updateLocalDeck(id,name,langQ,langA,tts,shuffle,noSkipBox,weightedReview,spaced,cards){
+  const saved={id,name,langQ,langA,tts,shuffle,noSkipBox,weightedReview,spaced,createdAt:Date.now(),cards:[...cards]};
   const idx=decks.findIndex(d=>d.id===id);
   if(idx>=0)decks[idx]=saved;else decks.unshift(saved);
 }
 async function saveDeck(){
   if(!user){toast('Connecte-toi pour sauvegarder');return}
-  const{name,langQ,langA,tts,shuffle,noSkipBox,weightedReview,cards}=getDeckData();
+  if(!guardAi())return;
+  const{name,langQ,langA,tts,shuffle,noSkipBox,weightedReview,spaced,cards}=getDeckData();
   if(!name){toast('Donne un nom au paquet');return}if(!cards.length){toast('Ajoute au moins une carte');return}
   showSaving(true);
   try{
-    const id=await withTimeout(saveDeckCloud(name,langQ,langA,tts,shuffle,cards,noSkipBox,weightedReview),30000);
+    const id=await withTimeout(saveDeckCloud(name,langQ,langA,tts,shuffle,cards,noSkipBox,weightedReview,spaced),30000);
     editId=id;
-    updateLocalDeck(id,name,langQ,langA,tts,shuffle,noSkipBox,weightedReview,cards);
+    updateLocalDeck(id,name,langQ,langA,tts,shuffle,noSkipBox,weightedReview,spaced,cards);
     toast('Paquet sauvegardé ☁');
   }catch(e){
     console.error('[FlashFWB] saveDeck error:',e);
@@ -938,12 +1020,13 @@ async function saveDeck(){
 }
 async function saveThenStudy(){
   if(!user){toast('Connecte-toi pour sauvegarder');return}
-  const{name,langQ,langA,tts,shuffle,noSkipBox,weightedReview,cards}=getDeckData();if(!name||!cards.length){toast(!name?'Donne un nom':'Ajoute des cartes');return}
+  if(!guardAi())return;
+  const{name,langQ,langA,tts,shuffle,noSkipBox,weightedReview,spaced,cards}=getDeckData();if(!name||!cards.length){toast(!name?'Donne un nom':'Ajoute des cartes');return}
   showSaving(true);
   try{
-    const id=await withTimeout(saveDeckCloud(name,langQ,langA,tts,shuffle,cards,noSkipBox,weightedReview),30000);
+    const id=await withTimeout(saveDeckCloud(name,langQ,langA,tts,shuffle,cards,noSkipBox,weightedReview,spaced),30000);
     editId=id;
-    updateLocalDeck(id,name,langQ,langA,tts,shuffle,noSkipBox,weightedReview,cards);
+    updateLocalDeck(id,name,langQ,langA,tts,shuffle,noSkipBox,weightedReview,spaced,cards);
     openStudy(id);
   }catch(e){
     console.error('[FlashFWB] saveThenStudy error:',e);
@@ -952,13 +1035,14 @@ async function saveThenStudy(){
 }
 async function shareDeck(){
   if(!user){toast('Connecte-toi pour partager avec un QR code');return}
+  if(!guardAi())return;
   const d=getDeckData();
   if(!d.name){toast('Donne un nom au paquet');return}
   if(!d.cards.length){toast('Ajoute des cartes d\'abord');return}
   if(!editId){
     showSaving(true);
     try{
-      const id=await saveDeckCloud(d.name,d.langQ,d.langA,d.tts,d.shuffle,d.cards,d.noSkipBox,d.weightedReview);
+      const id=await saveDeckCloud(d.name,d.langQ,d.langA,d.tts,d.shuffle,d.cards,d.noSkipBox,d.weightedReview,d.spaced);
       editId=id;await loadDecks();
     }catch(e){toast('Erreur sauvegarde : '+(e?.message||String(e)));return}
     finally{showSaving(false)}
@@ -992,11 +1076,20 @@ function buildQ(){
   }
   // Dédupliquer (une carte ne passe qu'une fois par session)
   const seen=new Set();studyQueue=studyQueue.filter(i=>{if(seen.has(i))return false;seen.add(i);return true});
+  // Espacement : les cartes revues trop récemment sont reportées (ordre Leitner, option du paquet)
+  studySkipped=0;
+  if(studyDeck?.spaced&&mode==='leitner'&&!spacingOff){const n0=studyQueue.length;studyQueue=studyQueue.filter(i=>isDue(studyCards[i]));studySkipped=n0-studyQueue.length}
   studyIdx=0;
+}
+function isDue(c){
+  if(c.box===1||!c.lastSeen)return true;
+  const a=new Date(c.lastSeen);if(isNaN(a))return true;a.setHours(0,0,0,0);
+  const b=new Date();b.setHours(0,0,0,0);
+  return Math.round((b-a)/864e5)>=(SPACING_DAYS[c.box]??0);
 }
 function updBoxes(){[1,2,3].forEach(b=>{const n=studyCards.filter(c=>c.box===b).length;document.getElementById('b'+b).textContent=n;document.getElementById('cb'+b).textContent=n})}
 function openStudy(id){stopRec();isStudent=false;document.getElementById('student-bar').style.display='none';const d=decks.find(x=>x.id===id);if(!d)return;openStudyCommon(d)}
-function openStudyCommon(d){studyDeck=d;studyCards=d.cards.map(c=>({...c}));buildQ();document.getElementById('stitle').textContent=d.name;showV('vs');renderStudy()}
+function openStudyCommon(d){spacingOff=false;studyDeck=d;studyCards=d.cards.map(c=>({...c}));buildQ();document.getElementById('stitle').textContent=d.name;showV('vs');renderStudy()}
 function exitStudy(){stopStudyAudio();if(isStudent){isStudent=false;showV('v-auth')}else{goHome()}}
 
 function renderStudy(){
@@ -1009,7 +1102,7 @@ function renderStudy(){
   const aImg=card.aImg||card.aImgUrl?'<img src="'+(card.aImg||card.aImgUrl)+'" class="fcimg" alt="">':'';
   const qAbt=card.qAud?'<button class="fcplay" onclick="event.stopPropagation();playAud(\'q\')">▶ Écouter</button>':'<button class="fcplay" onclick="event.stopPropagation();speakSide(\'q\')">▶ Prononcer</button>';
   const aAbt=card.aAud?'<button class="fcplay" onclick="event.stopPropagation();playAud(\'a\')">▶ Écouter</button>':'<button class="fcplay" onclick="event.stopPropagation();speakSide(\'a\')">▶ Prononcer</button>';
-  document.getElementById('scontent').innerHTML='<div class="fcw" onclick="flipCard()"><div class="fc" id="fc"><div class="fcf"><div class="fclbl">Question</div>'+qImg+'<div class="fctxt">'+esc(card.question)+'</div>'+qAbt+'<div class="fchint">Clique pour voir la réponse</div></div><div class="fcf fcback"><div class="fclbl">Réponse</div>'+aImg+'<div class="fctxt">'+esc(card.answer)+'</div>'+aAbt+'</div></div></div><div id="sbtn" style="text-align:center"><button class="btn bp" onclick="flipCard()" style="padding:10px 24px">Voir la réponse</button></div><div id="rbtn" style="display:none"><div style="font-size:12px;color:var(--tx3);text-align:center;margin-bottom:8px">Comment c\'était ?</div><div class="sr"><button class="btn br" onclick="rate(1)">A revoir<small>Difficile</small></button><button class="btn" onclick="rate(2)">Presque<small>Hésitation</small></button><button class="btn bt" onclick="rate(3)">Je sais !<small>Maîtrisé</small></button></div></div>';
+  document.getElementById('scontent').innerHTML='<div class="fcw" onclick="flipCard()"><div class="fc" id="fc"><div class="fcf"><div class="fclbl">Question</div>'+qImg+'<div class="fctxt">'+esc(card.question)+'</div>'+qAbt+'<div class="fchint">Clique pour voir la réponse</div></div><div class="fcf fcback"><div class="fclbl">Réponse</div>'+aImg+'<div class="fctxt">'+esc(card.answer)+'</div>'+aAbt+'</div></div></div><div id="sbtn" style="text-align:center"><button class="btn bp" onclick="flipCard()" style="padding:10px 24px">Voir la réponse</button></div><div id="rbtn" style="display:none"><div style="font-size:14px;color:var(--tx3);text-align:center;margin-bottom:8px">Comment c\'était ?</div><div class="sr"><button class="btn br" onclick="rate(1)">A revoir<small>Difficile</small></button><button class="btn" onclick="rate(2)">Presque<small>Hésitation</small></button><button class="btn bt" onclick="rate(3)">Je sais !<small>Maîtrisé</small></button></div></div>';
 }
 
 function playAud(side){if(sAudio){sAudio.pause();sAudio=null}const src=side==='q'?window._sc?.qAud:window._sc?.aAud;if(!src)return;sAudio=new Audio(src);sAudio.play().catch(()=>{})}
@@ -1042,15 +1135,22 @@ async function rate(r){
 function showComplete(){
   document.getElementById('scontent').innerHTML='';document.getElementById('pf').style.width='100%';document.getElementById('spg').textContent='Terminé !';updBoxes();
   const hard=studyCards.filter(c=>c.box===1).length;
-  document.getElementById('cmsg').textContent=hard?hard+' carte(s) à retravailler. Continue !':'Excellent ! Toutes les cartes sont maîtrisées.';
+  let msg=hard?hard+' carte(s) à retravailler. Continue !':'Excellent ! Toutes les cartes sont maîtrisées.';
+  const spaced=studyDeck?.spaced&&!spacingOff&&studySkipped>0;
+  if(spaced&&!studyQueue.length)msg='Aucune carte à revoir pour le moment : '+studySkipped+' carte(s) reviennent un autre jour. Reviens demain !';
+  else if(spaced)msg+=' '+studySkipped+' carte(s) sont reportées à un autre jour.';
+  document.getElementById('cmsg').textContent=msg;
+  document.getElementById('all-btn').style.display=spaced?'':'none';
   document.getElementById('retry-btn').style.display=hard?'':'none';document.getElementById('cview').style.display='block';
 }
 function retryHard(){studyQueue=studyCards.flatMap((c,i)=>c.box===1?[i]:[]);studyIdx=0;document.getElementById('cview').style.display='none';renderStudy()}
+function reviewAll(){spacingOff=true;restartStudy()}
 function restartStudy(){buildQ();document.getElementById('cview').style.display='none';renderStudy()}
 
 // INIT
 (async()=>{
   populateLangSelects();
+  try{if(localStorage.getItem('flashplai_dys')==='1')setDys(true)}catch{}
   if(window.speechSynthesis){window.speechSynthesis.getVoices();window.speechSynthesis.onvoiceschanged=()=>{}}
   const hash=window.location.hash.slice(1);const params=new URLSearchParams(hash);
   const code=params.get('code');
