@@ -25,7 +25,7 @@ Application de cartes mémoire pédagogiques pour les enseignants de la Fédéra
 - Impression des cartes recto-verso (bouton « Imprimer les cartes » de l'éditeur) : 8 cartes par page A4, questions puis réponses, colonnes inversées au verso
 - Profils élèves mémorisés sur l'appareil (8 maximum, effaçables) : un clic remplit prénom/code ; stockés dans le navigateur de l'appareil seulement
 - Durée de validité du code de classe (sans limite, 1 semaine, 1 mois, fin d'année scolaire) : nécessite `migration_v5.sql` ; le même code peut être prolongé
-- Formules mathématiques : bouton « ∑ Formule » sur chaque carte, éditeur visuel (MathLive, clavier mathématique, aucune syntaxe à connaître) ; stockées en LaTeX entre `$…$` dans le texte, rendues par KaTeX à l'étude, dans le tableau de bord et à l'impression. Bibliothèques chargées à la demande depuis un CDN : sans réseau, les formules s'affichent en texte brut. La voix de synthèse dit « formule »
+- Formules mathématiques : bouton « ∑ Formule » sur chaque carte, éditeur visuel (MathLive, clavier mathématique, aucune syntaxe à connaître) ; stockées en LaTeX entre `$…$` dans le texte, rendues par KaTeX à l'étude, dans le tableau de bord et à l'impression. Bibliothèques chargées à la demande depuis un CDN : sans réseau, les formules s'affichent en texte brut. Le signe `$` est réservé aux formules (écrire les prix avec €). La voix de synthèse dit « formule »
 - Mode sombre supporté
 
 ---
