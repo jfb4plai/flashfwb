@@ -105,6 +105,34 @@ label{font-size:13px;color:var(--tx2);display:block;margin-bottom:5px}
 .auth-tab{flex:1;padding:9px 4px;font-size:12px;font-weight:500;cursor:pointer;border:none;background:none;color:var(--tx2);text-align:center}
 .auth-tab.on{background:var(--al);color:#633806}
 .auth-tab.on.s{background:var(--pul);color:#3C3489}
+/* Accueil : accroche + deux entrées */
+.auth-tab{font-size:15px;padding:10px 4px}
+.auth-box label{font-size:15px;font-weight:600;color:var(--tx)}
+.auth-box input{font-size:16px;padding:10px 12px}
+.help{display:block;font-size:14px;color:var(--tx2);margin-top:4px}
+.pill{display:inline-block;background:var(--tl);color:#085041;border:1px solid #9FE1CB;border-radius:999px;padding:4px 14px;font-size:14px;font-weight:600;margin:14px 0}
+.landing-h{font-size:28px;line-height:1.2;margin-bottom:10px}.landing-h b{color:var(--a)}
+.landing-lead{font-size:17px;color:var(--tx2);max-width:560px}
+.bens{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0 6px}
+.ben{border:.5px solid var(--bd);border-radius:var(--rr);padding:14px;background:var(--bg2)}
+.ben .ic{font-size:24px;display:block;margin-bottom:4px}
+.ben h3{font-size:16px;margin-bottom:4px}.ben p{font-size:15px;color:var(--tx2)}
+.choose{margin:22px 0 4px}.choose h2{font-size:20px;margin-bottom:12px}
+.entries{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.entry{display:flex;flex-direction:column;gap:6px;text-align:left;font:inherit;color:var(--tx);border:2px solid var(--bd2);border-radius:var(--rr);padding:18px;background:var(--bg);cursor:pointer;min-height:150px}
+.entry:hover,.entry:focus-visible{border-color:var(--tx)}
+.entry .ic{font-size:30px}.entry strong{font-size:19px}
+.entry .s{font-size:15px;color:var(--tx2)}
+.entry.t{background:var(--al);border-color:var(--am)}.entry.e{background:var(--pul);border-color:#AFA9EC}
+.entry .go{margin-top:auto;font-weight:700;font-size:16px}
+.entry.t .go{color:#633806}.entry.e .go{color:#3C3489}
+.auth-back{background:none;border:0;font:inherit;font-size:16px;color:var(--tx2);cursor:pointer;margin-bottom:6px}
+.stu-steps{background:var(--pul);border:.5px solid #AFA9EC;border-radius:var(--rr);padding:12px 16px;margin-bottom:16px;font-size:15px;color:#3C3489}
+.stu-steps ol{padding-left:20px}
+#auth-landing{display:flex;flex-direction:column;align-items:flex-start}
+#auth-landing .bens,#auth-landing .choose{align-self:stretch}
+@media(max-width:640px){.bens,.entries{grid-template-columns:1fr}.landing-h{font-size:24px}.choose{order:1;margin-top:16px}.bens{order:2}}
+@media(prefers-color-scheme:dark){.pill{background:#0d3b2e;color:#9FE1CB;border-color:#1D9E75}.entry.t{background:#3d2e0a;border-color:#7a5a1a}.entry.e{background:#26244a;border-color:#534AB7}.entry.t .go{color:#f0c060}.entry.e .go,.stu-steps{color:#CECBF6}.stu-steps{background:#26244a;border-color:#534AB7}}
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px}
 .modal-overlay.hidden{display:none}
 .modal{background:var(--bg);border-radius:var(--rr);padding:24px;max-width:400px;width:100%;position:relative;max-height:90vh;overflow-y:auto}
@@ -134,25 +162,51 @@ label{font-size:13px;color:var(--tx2);display:block;margin-bottom:5px}
     <span class="logo">Flash<b>FWB</b></span>
     <img src="plai-logo.jpg" alt="PLAI" style="height:36px;object-fit:contain;margin-left:auto">
   </div>
-  <div class="auth-box">
-    <h2>Bienvenue</h2>
-    <p>Espace pédagogique FWB</p>
-    <div class="auth-tabs">
+  <div id="auth-landing">
+    <span class="pill">Gratuit · Pour les écoles de la Fédération Wallonie-Bruxelles</span>
+    <h1 class="landing-h">Des cartes mémoire pour que chaque élève <b>révise à son rythme</b></h1>
+    <p class="landing-lead">Créer un paquet de cartes en quelques minutes. Partager un code de classe. Les élèves révisent sans compte.</p>
+    <div class="bens">
+      <div class="ben"><span class="ic" aria-hidden="true">🗂️</span><h3>Créer vite</h3><p>Saisie manuelle, import Markdown ou CSV, pictogrammes ARASAAC, audio.</p></div>
+      <div class="ben"><span class="ic" aria-hidden="true">🔑</span><h3>Élèves sans compte</h3><p>Un code de classe ou un QR code suffit pour réviser.</p></div>
+      <div class="ben"><span class="ic" aria-hidden="true">📊</span><h3>Suivre la progression</h3><p>Progression par élève, cartes les plus difficiles.</p></div>
+    </div>
+    <div class="choose">
+      <h2>Qui es-tu ?</h2>
+      <div class="entries">
+        <button class="entry t" onclick="authEntry('teacher')">
+          <span class="ic" aria-hidden="true">🧑‍🏫</span><strong>Je suis enseignant·e</strong>
+          <span class="s">Créer des paquets, partager un code de classe, suivre mes élèves.</span>
+          <span class="go">Me connecter ou créer un compte →</span>
+        </button>
+        <button class="entry e" onclick="authEntry('student')">
+          <span class="ic" aria-hidden="true">🎒</span><strong>Je suis élève</strong>
+          <span class="s">Mon enseignant m'a donné un code. Pas besoin de compte.</span>
+          <span class="go">Entrer mon code →</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="auth-box" id="auth-form-box" style="display:none">
+    <button class="auth-back" onclick="authEntry('choice')">← Retour</button>
+    <h2 id="auth-title">Espace enseignant</h2>
+    <p id="auth-sub">Se connecter ou créer un compte.</p>
+    <div class="auth-tabs" id="auth-tabs">
       <button class="auth-tab on" onclick="authTab('login',this)">Connexion</button>
       <button class="auth-tab" onclick="authTab('register',this)">Créer un compte</button>
-      <button class="auth-tab s" onclick="authTab('student',this)">Je suis élève</button>
+      <button class="auth-tab s" style="display:none" onclick="authTab('student',this)">Je suis élève</button>
     </div>
     <div id="tf">
-      <div class="fld"><label>Email</label><input type="email" id="auth-email" placeholder="ton@email.be"></div>
-      <div class="fld"><label>Mot de passe</label><input type="password" id="auth-pass" placeholder="Minimum 6 caractères"></div>
-      <div id="auth-name-row" class="fld" style="display:none"><label>Ton prénom</label><input type="text" id="auth-name" placeholder="ex : Jean-François"></div>
+      <div class="fld"><label for="auth-email">Adresse email</label><input type="email" id="auth-email" placeholder="prenom.nom@ecole.be" autocomplete="email"><small class="help">L'adresse de ton compte enseignant. Elle sert aussi à recevoir le lien si tu oublies ton mot de passe.</small></div>
+      <div class="fld"><label for="auth-pass">Mot de passe</label><input type="password" id="auth-pass" placeholder="Minimum 6 caractères" autocomplete="current-password"></div>
+      <div id="auth-name-row" class="fld" style="display:none"><label for="auth-name">Ton prénom</label><input type="text" id="auth-name" placeholder="ex : Jean-François"></div>
       <button class="btn bp bw" id="auth-btn" onclick="doAuth()">Se connecter</button>
       <div id="auth-forgot" style="text-align:center;margin-top:10px"><button class="btn" style="font-size:12px;padding:6px 12px" onclick="resetPwd()">Mot de passe oublié ?</button></div>
     </div>
     <div id="sf" style="display:none">
-      <div style="background:var(--pul);border:.5px solid #AFA9EC;border-radius:var(--rr);padding:12px;margin-bottom:16px;font-size:13px;color:#3C3489">Entre le code donné par ton enseignant.</div>
-      <div class="fld"><label>Ton prénom</label><input type="text" id="sname" placeholder="ex : Sophie"></div>
-      <div class="fld"><label>Code de la classe</label><input type="text" id="scode" class="code-input-big" placeholder="FWB-XXXX" maxlength="8" oninput="this.value=this.value.toUpperCase()"></div>
+      <div class="stu-steps"><ol><li>Écrire ton prénom.</li><li>Écrire le code donné par ton enseignant.</li><li>Cliquer sur « Accéder aux cartes ».</li></ol></div>
+      <div class="fld"><label for="sname">Ton prénom</label><input type="text" id="sname" placeholder="ex : Sophie"><small class="help">Ta progression est enregistrée sous ce prénom. Écrire le même prénom à chaque fois.</small></div>
+      <div class="fld"><label for="scode">Code de la classe</label><input type="text" id="scode" class="code-input-big" placeholder="FWB-XXXX" maxlength="8" oninput="this.value=this.value.toUpperCase()"><small class="help">Le code est donné par ton enseignant (au tableau, sur une feuille ou par QR code).</small></div>
       <button class="btn bpu bw" id="sbtn2" onclick="studentLogin()">Accéder aux cartes</button>
     </div>
   </div>
@@ -351,6 +405,19 @@ function showSaving(v){const el=document.getElementById('save-ind');if(el)el.sty
 function goHome(){stopRec();stopStudyAudio();showV('vh');renderDecks()}
 
 // AUTH
+// Accueil : 'choice' (accroche + 2 entrées), 'teacher' (connexion / création), 'student' (code de classe)
+function authEntry(who){
+  const form=document.getElementById('auth-form-box');
+  document.getElementById('auth-landing').style.display=who==='choice'?'':'none';
+  form.style.display=who==='choice'?'none':'block';
+  if(who==='choice')return;
+  const tabs=document.querySelectorAll('.auth-tab');
+  const stu=who==='student';
+  document.getElementById('auth-tabs').style.display=stu?'none':'flex';
+  document.getElementById('auth-title').textContent=stu?'Espace élève':'Espace enseignant';
+  document.getElementById('auth-sub').style.display=stu?'none':'block';
+  authTab(stu?'student':'login',stu?tabs[2]:tabs[0]);
+}
 function authTab(mode,el){
   authMode=mode;
   document.querySelectorAll('.auth-tab').forEach(t=>t.classList.remove('on'));
@@ -987,7 +1054,7 @@ function restartStudy(){buildQ();document.getElementById('cview').style.display=
   if(window.speechSynthesis){window.speechSynthesis.getVoices();window.speechSynthesis.onvoiceschanged=()=>{}}
   const hash=window.location.hash.slice(1);const params=new URLSearchParams(hash);
   const code=params.get('code');
-  if(code){authTab('student',document.querySelectorAll('.auth-tab')[2]);document.getElementById('scode').value=code.toUpperCase()}
+  if(code){authEntry('student');document.getElementById('scode').value=code.toUpperCase()}
   const enc=params.get('share');
   if(enc){try{sessionStorage.setItem('pendingShare',enc)}catch{}}
 })();
