@@ -185,6 +185,18 @@ math-field{width:100%;font-size:28px;padding:8px 12px;border:.5px solid var(--bd
 .shb h4{font-size:16px;font-weight:600;margin-bottom:4px}
 .shb .row{gap:8px;margin-top:8px}
 #main-tabs .tab{font-size:16px;padding:10px 9px}
+.res-row{background:var(--bg);border:.5px solid var(--bd);border-radius:var(--rm);margin-bottom:6px}
+.res-row>summary{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 12px;cursor:pointer;list-style:none;min-height:44px}
+.res-row>summary::-webkit-details-marker{display:none}
+.res-row>summary::before{content:"\25B8";color:var(--tx3);font-size:14px}
+.res-row[open]>summary::before{content:"\25BE"}
+.res-name{font-size:16px;font-weight:500;flex:0 0 5.5em;overflow-wrap:anywhere}
+.res-mini{display:flex;flex:1 1 90px;height:10px;border-radius:5px;overflow:hidden;min-width:90px}
+.res-mini span{display:block;height:100%}
+.res-num{font-size:14px;color:var(--tx2);white-space:nowrap}
+.res-body{padding:4px 14px 12px 34px;border-top:.5px solid var(--bd)}
+.res-body h4{font-size:16px;margin:10px 0 4px}
+.res-body ul{padding-left:20px;font-size:16px}
 </style>
 </head>
 <body>
@@ -827,11 +839,21 @@ async function deactivateCode(){
 }
 
 // RESULTS
-function detailCards(deck,s){
+function detailLists(deck,s){
   const list=ids=>ids.map(id=>deck?.cards.find(c=>c.id===id)).filter(Boolean).map(c=>'<li>'+rich(c.question)+'</li>').join('');
   const l1=list(s.c1),l2=list(s.c2);
-  if(!l1&&!l2)return'';
-  return'<details class="res-det"><summary>Voir quelles cartes (à revoir : '+s.c1.length+', presque : '+s.c2.length+')</summary>'+(l1?'<h4>À revoir</h4><ul>'+l1+'</ul>':'')+(l2?'<h4>Presque</h4><ul>'+l2+'</ul>':'')+'</details>';
+  if(!l1&&!l2)return'<p class="help" style="margin-top:8px">Aucune carte à revoir ni « presque » pour cet élève.</p>';
+  return(l1?'<h4>À revoir ('+s.c1.length+')</h4><ul>'+l1+'</ul>':'')+(l2?'<h4>Presque ('+s.c2.length+')</h4><ul>'+l2+'</ul>':'');
+}
+function studentRow(name,s,total,deck){
+  const done=s.b1+s.b2+s.b3;
+  const lastStr=s.last?s.last.toLocaleDateString('fr-BE',{day:'2-digit',month:'2-digit'}):'–';
+  const sum=(s.b1+s.b2+s.b3)||1;
+  return'<details class="res-row"><summary><span class="res-name">'+esc(name)+'</span>'
+    +'<span class="res-mini" title="'+s.b1+' à revoir, '+s.b2+' presque, '+s.b3+' maîtrisées"><span style="background:#E24B4A;width:'+(s.b1/sum*100)+'%"></span><span style="background:#EF9F27;width:'+(s.b2/sum*100)+'%"></span><span style="background:#1D9E75;width:'+(s.b3/sum*100)+'%"></span></span>'
+    +'<span class="res-num"><span style="color:#791F1F">■ '+s.b1+'</span> <span style="color:#633806">■ '+s.b2+'</span> <span style="color:#085041">■ '+s.b3+'</span></span>'
+    +'<span class="res-num">'+done+'/'+total+' · '+lastStr+'</span></summary>'
+    +'<div class="res-body">'+detailLists(deck,s)+'</div></details>';
 }
 function switchResTab(n){
   ['eleves','cartes'].forEach(m=>{const e=document.getElementById('res-pane-'+m);if(e)e.style.display=m===n?'block':'none'});
@@ -868,11 +890,8 @@ async function openResults(deckId,deckName){
   let html='<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap"><div style="background:var(--tl);border:.5px solid #9FE1CB;border-radius:var(--rm);padding:8px 14px;font-size:14px;color:#085041">Code : <strong>'+codeData.code+'</strong></div><div style="font-size:14px;color:var(--tx2)">'+nb+' élève'+(nb>1?'s':'')+' · '+total+' cartes</div></div>';
   html+='<div class="tabs" id="res-tabs" role="tablist"><button class="tab on" role="tab" aria-selected="true" data-rt="eleves" onclick="switchResTab(\'eleves\')">Élèves ('+nb+')</button><button class="tab" role="tab" aria-selected="false" data-rt="cartes" onclick="switchResTab(\'cartes\')">Cartes difficiles ('+hardCards.length+')</button></div><div id="res-pane-eleves">';
   const sorted=Object.entries(students).sort((a,b)=>b[1].b3-a[1].b3);
-  for(const[name,s] of sorted){
-    const done=s.b1+s.b2+s.b3;
-    const lastStr=s.last?s.last.toLocaleDateString('fr-BE',{day:'2-digit',month:'2-digit',year:'numeric'}):'–';
-    html+='<div class="res-card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><span style="font-size:16px;font-weight:500">'+esc(name)+'</span><span style="font-size:14px;color:var(--tx3)">Dernière révision : '+lastStr+'</span></div><div class="res-bars"><div class="res-bar" style="background:#E24B4A;flex:'+(s.b1||0.5)+'"></div><div class="res-bar" style="background:#EF9F27;flex:'+(s.b2||0.5)+'"></div><div class="res-bar" style="background:#1D9E75;flex:'+(s.b3||0.5)+'"></div></div><div style="display:flex;gap:12px;font-size:14px;color:var(--tx2)"><span style="color:#791F1F">■ '+s.b1+' à revoir</span><span style="color:#633806">■ '+s.b2+' presque</span><span style="color:#085041">■ '+s.b3+' maîtrisées</span><span style="margin-left:auto">'+done+'/'+total+'</span></div>'+detailCards(deck,s)+'</div>';
-  }
+  html+='<p class="help" style="margin-bottom:8px">Une ligne par élève : ■ rouge = à revoir, ■ orange = presque, ■ vert = maîtrisées, puis cartes travaillées sur le total et date de la dernière révision. Cliquer sur une ligne pour voir les cartes concernées.</p>';
+  for(const[name,s] of sorted)html+=studentRow(name,s,total,deck);
   html+='</div><div id="res-pane-cartes" style="display:none">';
   html+='<p class="help" style="margin-bottom:10px">Une carte est « difficile » quand au moins la moitié des élèves qui l\'ont travaillée la laissent en boîte « À revoir ». Bon point de départ pour une remédiation en classe.</p>';
   if(hardCards.length){

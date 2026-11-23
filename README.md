@@ -19,7 +19,7 @@ Application de cartes mémoire pédagogiques pour les enseignants de la Fédéra
 - Mode « Lecture facilitée » (Arial, interligne et espacement agrandis), mémorisé sur l'appareil
 - Option par paquet « Espacer les révisions dans le temps » (ordre Leitner) : nécessite `migration_v4.sql`
 - Tableau de bord en deux onglets : « Élèves » et « Cartes difficiles » (au moins la moitié des élèves la laissent en boîte « À revoir »)
-- Tableau de bord : pour chaque élève, la liste des cartes à revoir et « presque »
+- Tableau de bord : une ligne compacte par élève (barre de progression, compteurs, date), à déplier pour voir la liste des cartes à revoir et « presque »
 - Générateur IA : niveau, nombre de cartes et contexte de classe dans le prompt ; cartes importées à relire avant sauvegarde
 - Accueil à deux entrées (« Je suis enseignant·e » / « Je suis élève »), le lien QR ouvre directement le formulaire élève
 - Application installable (PWA) : manifeste, icônes et service worker qui met en cache la coquille de l'app. Sans réseau, l'écran s'ouvre mais les paquets et la progression (Supabase) ne se chargent pas
