@@ -27,6 +27,7 @@ Application de cartes mémoire pédagogiques pour les enseignants de la Fédéra
 - Profils élèves mémorisés sur l'appareil (8 maximum, effaçables) : un clic remplit prénom/code ; stockés dans le navigateur de l'appareil seulement
 - Durée de validité du code de classe (sans limite, 1 semaine, 1 mois, fin d'année scolaire) : nécessite `migration_v5.sql` ; le même code peut être prolongé
 - Formules mathématiques : bouton « ∑ Formule » sur chaque carte, éditeur visuel (MathLive, clavier mathématique, aucune syntaxe à connaître) ; stockées en LaTeX entre `$…$` dans le texte, rendues par KaTeX à l'étude, dans le tableau de bord et à l'impression. Bibliothèques chargées à la demande depuis un CDN : sans réseau, les formules s'affichent en texte brut. Le signe `$` est réservé aux formules (écrire les prix avec €). La voix de synthèse dit « formule »
+- Cartes repliables : au-delà de 8 cartes, l'éditeur les affiche repliées (question, réponse, ⚠ si incomplète, ● si image ou audio) ; « Tout replier / Tout déplier » ; une carte ajoutée s'ouvre
 - Éditeur de paquet en onglets : Cartes, Réglages (langues, voix, ordre, Leitner, espacement), Importer (Markdown, CSV, Claude), Partager (code de classe et QR, résultats, impression) ; barre Sauvegarder / Réviser toujours visible en bas
 - Mode sombre supporté
 

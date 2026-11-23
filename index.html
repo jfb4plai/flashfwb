@@ -197,6 +197,16 @@ math-field{width:100%;font-size:28px;padding:8px 12px;border:.5px solid var(--bd
 .res-body{padding:4px 14px 12px 34px;border-top:.5px solid var(--bd)}
 .res-body h4{font-size:16px;margin:10px 0 4px}
 .res-body ul{padding-left:20px;font-size:16px}
+.csum{display:none;width:100%;align-items:center;gap:10px;padding:10px;background:none;border:none;cursor:pointer;text-align:left;color:var(--tx);font-family:var(--ff);font-size:16px;min-height:44px}
+.cw.collapsed .csum{display:flex}
+.cw.collapsed .crow,.cw.collapsed .cmp{display:none!important}
+.csum .cnum{margin-top:0}
+.cs-t{flex:1;min-width:0;display:flex;flex-direction:column}
+.cs-q{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cs-a{font-size:14px;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cs-w{color:#791F1F;font-size:16px}.cs-m{color:#633806;font-size:14px}.cs-c{color:var(--tx3);font-size:14px}
+.fold-row{display:none;gap:8px;margin-bottom:8px}
+.cright .cdel{min-width:32px;min-height:32px}
 </style>
 </head>
 <body>
@@ -330,7 +340,7 @@ math-field{width:100%;font-size:28px;padding:8px 12px;border:.5px solid var(--bd
   </div>
   </div>
   <div id="pane-cartes">
-  <div id="tab-form"><div id="ai-note" class="ai-note" style="display:none"><strong>Cartes importées à relire.</strong> Si elles viennent d'une IA, elles peuvent contenir des erreurs ou rester génériques. Relire chaque carte, corriger, et ajouter vos exemples et vos mots avant de sauvegarder.<br><button type="button" class="btn bp" onclick="aiReviewed()">J'ai relu et adapté les cartes</button></div><div id="card-list"></div><button class="btn bw" onclick="addCard()">+ Ajouter une carte</button></div>
+  <div id="tab-form"><div id="ai-note" class="ai-note" style="display:none"><strong>Cartes importées à relire.</strong> Si elles viennent d'une IA, elles peuvent contenir des erreurs ou rester génériques. Relire chaque carte, corriger, et ajouter vos exemples et vos mots avant de sauvegarder.<br><button type="button" class="btn bp" onclick="aiReviewed()">J'ai relu et adapté les cartes</button></div><div class="fold-row" id="fold-row"><button type="button" class="btn" style="font-size:14px;padding:6px 12px" onclick="foldAll(true)">Tout replier</button><button type="button" class="btn" style="font-size:14px;padding:6px 12px" onclick="foldAll(false)">Tout déplier</button></div><div id="card-list"></div><button class="btn bw" onclick="addCard()">+ Ajouter une carte</button></div>
   </div>
   <div id="pane-lot" style="display:none">
   <p class="help" style="margin-bottom:10px">Ajouter plusieurs cartes d'un coup : coller du texte, importer un fichier, ou préparer un brouillon avec une IA.</p>
@@ -939,6 +949,7 @@ function openCreate(id){
   aiPending=false;document.getElementById('ai-note').style.display='none';
   toggleLeitnerOpts();
   editCards=d?d.cards.map(c=>({...c})):[];
+  closedCards.clear();if(editCards.length>FOLD_AT)editCards.forEach(c=>closedCards.add(c.id));
   document.getElementById('md-input').value='';
   document.getElementById('share-area').innerHTML='';
   document.getElementById('csv-config').style.display='none';
@@ -968,7 +979,7 @@ function switchTab(n,el){
 }
 function updateSummary(){
   const el=document.getElementById('deck-summary');if(!el)return;
-  const n=editCards.length;const tc=document.getElementById('tcount');if(tc)tc.textContent='('+n+')';
+  const n=editCards.length;const tc=document.getElementById('tcount');if(tc)tc.textContent='('+n+')';const fr=document.getElementById('fold-row');if(fr)fr.style.display=n>3?'flex':'none';
   const mode=document.getElementById('dshuffle').value==='leitner'?'ordre Leitner':'ordre aléatoire';
   const lq=document.getElementById('dlangQ').value,la=document.getElementById('dlangA').value;
   const parts=[mode];
@@ -987,7 +998,28 @@ function openResultsFromEditor(){
 }
 
 function mkCard(q,a){return{id:uid(),question:q,answer:a,box:1,lastSeen:null,qImg:null,aImg:null,qAud:null,aAud:null,qImgUrl:null,aImgUrl:null}}
-function addCard(){editCards.push(mkCard('',''));redrawCards()}
+const FOLD_AT=8;
+let closedCards=new Set();
+function foldNew(list){if(editCards.length>FOLD_AT)list.forEach(c=>closedCards.add(c.id))}
+function addCard(){
+  const c=mkCard('','');editCards.push(c);redrawCards();
+  const inp=document.getElementById('ci-'+c.id+'-q');if(inp){inp.focus();inp.scrollIntoView({block:'center'})}
+}
+function csumHtml(c,i){
+  const flat=t=>(t||'').replace(new RegExp(FML_RE.source,'g'),'∑').trim();
+  const q=flat(c.question)||'(question vide)',a=flat(c.answer)||'(réponse vide)';
+  const warn=!(c.question||'').trim()||!(c.answer||'').trim();
+  return'<button type="button" class="csum" id="cs-'+c.id+'" onclick="toggleCard(\''+c.id+'\')" aria-label="Déplier la carte '+(i+1)+'"><span class="cnum">'+(i+1)+'</span><span class="cs-t"><span class="cs-q">'+esc(q)+'</span><span class="cs-a">'+esc(a)+'</span></span>'+(warn?'<span class="cs-w" title="Carte incomplète : elle ne sera pas enregistrée">⚠</span>':'')+(hasMed(c)?'<span class="cs-m" title="Image ou audio">●</span>':'')+'<span class="cs-c">▾</span></button>';
+}
+function toggleCard(id){
+  const el=document.getElementById('cw-'+id);if(!el)return;
+  const collapsed=el.classList.toggle('collapsed');
+  if(collapsed)closedCards.add(id);else closedCards.delete(id);
+  const i=editCards.findIndex(c=>c.id===id);
+  if(collapsed){const sm=document.getElementById('cs-'+id);if(sm&&i>=0)sm.outerHTML=csumHtml(editCards[i],i)}
+  else{const inp=document.getElementById('ci-'+id+'-q');if(inp)inp.focus()}
+}
+function foldAll(fold){closedCards.clear();if(fold)editCards.forEach(c=>closedCards.add(c.id));redrawCards()}
 function removeCard(i){if(activeRec){toast('Arrête l\'enregistrement d\'abord');return}editCards.splice(i,1);redrawCards()}
 function hasMed(c){return!!(c.qImg||c.aImg||c.qAud||c.aAud||c.qImgUrl||c.aImgUrl)}
 
@@ -997,7 +1029,7 @@ function redrawCardsRaw(){
   if(!editCards.length){el.innerHTML='<div class="empty" style="padding:20px"><div style="font-size:28px">🃏</div><p>Aucune carte</p></div>';return}
   el.innerHTML=editCards.map((c,i)=>{
     const hm=hasMed(c);const op=openPanels.has(c.id);
-    return'<div class="cw" id="cw-'+c.id+'"><div class="crow"><div class="cnum">'+(i+1)+'</div><div class="cflds"><input type="text" id="ci-'+c.id+'-q" value="'+esc(c.question)+'" oninput="cardInput('+i+',\'q\',this)" placeholder="Question / Recto"><input type="text" id="ci-'+c.id+'-a" value="'+esc(c.answer)+'" oninput="cardInput('+i+',\'a\',this)" placeholder="Réponse / Verso"><div class="fml-row"><button type="button" class="fml-btn" onclick="openFormula('+i+',\'q\')">∑ Formule dans la question</button><button type="button" class="fml-btn" onclick="openFormula('+i+',\'a\')">∑ Formule dans la réponse</button></div><div class="fml-prev" id="fp-'+c.id+'">'+previewHtml(c)+'</div></div><div class="cright"><button class="cdel" onclick="removeCard('+i+')">✕</button><button id="mt-'+c.id+'" class="cmtog'+(hm?' hm':'')+'" onclick="toggleMP(\''+c.id+'\')">'+(op?'▴':'▾')+(hm?' ●':'')+'</button></div></div><div id="mp-'+c.id+'" class="cmp'+(op?' open':'')+'">'+mSec(i,'q','Question')+mSec(i,'a','Réponse')+'</div></div>';
+    return'<div class="cw'+(closedCards.has(c.id)?' collapsed':'')+'" id="cw-'+c.id+'">'+csumHtml(c,i)+'<div class="crow"><div class="cnum">'+(i+1)+'</div><div class="cflds"><input type="text" id="ci-'+c.id+'-q" value="'+esc(c.question)+'" oninput="cardInput('+i+',\'q\',this)" placeholder="Question / Recto"><input type="text" id="ci-'+c.id+'-a" value="'+esc(c.answer)+'" oninput="cardInput('+i+',\'a\',this)" placeholder="Réponse / Verso"><div class="fml-row"><button type="button" class="fml-btn" onclick="openFormula('+i+',\'q\')">∑ Formule dans la question</button><button type="button" class="fml-btn" onclick="openFormula('+i+',\'a\')">∑ Formule dans la réponse</button></div><div class="fml-prev" id="fp-'+c.id+'">'+previewHtml(c)+'</div></div><div class="cright"><button type="button" class="cdel" title="Replier la carte" aria-label="Replier la carte" onclick="toggleCard(\''+c.id+'\')">▴</button><button class="cdel" onclick="removeCard('+i+')">✕</button><button id="mt-'+c.id+'" class="cmtog'+(hm?' hm':'')+'" onclick="toggleMP(\''+c.id+'\')">'+(op?'▴':'▾')+(hm?' ●':'')+'</button></div></div><div id="mp-'+c.id+'" class="cmp'+(op?' open':'')+'">'+mSec(i,'q','Question')+mSec(i,'a','Réponse')+'</div></div>';
   }).join('');
 }
 
@@ -1144,7 +1176,7 @@ function importCSV(){
   const rows=csvParsed.allLines.slice(1).map(l=>parseLine(l,csvParsed.sep));
   const cards=rows.filter(r=>r[qc]&&r[ac]).map(r=>mkCard(r[qc],r[ac]));
   if(!cards.length){toast('Aucune donnée valide');return}
-  editCards=[...editCards,...cards];
+  editCards=[...editCards,...cards];foldNew(cards);
   document.getElementById('csv-file').value='';document.getElementById('csv-config').style.display='none';csvParsed=null;
   switchMain('cartes');
   redrawCards();toast(cards.length+' cartes importées depuis le CSV');
@@ -1167,7 +1199,7 @@ function parseMd(txt){
 function importMd(){
   const parsed=parseMd(document.getElementById('md-input').value);
   if(!parsed.length){toast('Aucune carte trouvée');return}
-  editCards=[...editCards,...parsed];document.getElementById('md-input').value='';aiPending=true;document.getElementById('ai-note').style.display='block';
+  editCards=[...editCards,...parsed];foldNew(parsed);document.getElementById('md-input').value='';aiPending=true;document.getElementById('ai-note').style.display='block';
   switchMain('cartes');
   redrawCards();toast(parsed.length+' cartes importées');
 }
