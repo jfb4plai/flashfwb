@@ -1,8 +1,8 @@
-# FlashFWB v5.4
+# FlashPLAI v5.4
 
-Application de cartes mémoire pédagogiques pour les enseignants de la Fédération Wallonie-Bruxelles.
+Application de cartes mémoire pédagogiques pour les enseignants de la Fédération Wallonie-Bruxelles, proposée aux écoles coopérantes du Pôle de la Ville de Liège (PLAI). Anciennement nommée FlashFWB.
 
-**URL de l'app :** https://flashfwb-cd2m.vercel.app
+**URL de l'app :** https://flashfwb.vercel.app
 
 ---
 
@@ -15,6 +15,7 @@ Application de cartes mémoire pédagogiques pour les enseignants de la Fédéra
 - Ordre des cartes : Leitner (par boîte) ou aléatoire
 - Code de classe + QR code — accès élèves sans compte
 - Tableau de bord enseignant — progression par élève, cartes difficiles
+- Accueil à deux entrées (« Je suis enseignant·e » / « Je suis élève »), le lien QR ouvre directement le formulaire élève
 - Mode sombre supporté
 
 ---
@@ -73,8 +74,8 @@ Supabase → **Authentication → Sign In / Providers → Email** → décoche *
 ### 5. Configurer l'URL de redirection
 
 Supabase → **Authentication → URL Configuration** :
-- Site URL : `https://flashfwb-cd2m.vercel.app`
-- Redirect URLs : ajoute `https://flashfwb-cd2m.vercel.app/**`
+- Site URL : `https://flashfwb.vercel.app`
+- Redirect URLs : ajoute `https://flashfwb.vercel.app/**`
 
 ### 6. Déployer sur Vercel
 
