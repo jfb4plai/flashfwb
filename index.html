@@ -170,6 +170,13 @@ body.dys .fctxt{line-height:1.7;font-size:20px}
 .res-bars{display:flex;gap:6px;margin-bottom:6px}
 .res-bar{flex:1;height:8px;border-radius:100px}
 .hard-card{background:var(--rl);border:.5px solid #F7C1C1;border-radius:var(--rm);padding:8px 12px;margin-bottom:6px;font-size:14px}
+.mf{font-size:1.1em}
+.fml-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.fml-btn{padding:6px 12px;font-size:16px;border:.5px solid var(--bd2);background:var(--bg2);border-radius:var(--rm);cursor:pointer;color:var(--tx)}
+.fml-btn:hover{border-color:var(--tx2)}
+.fml-prev{margin-top:6px;padding:8px 12px;border:.5px dashed var(--bd2);border-radius:var(--rm);font-size:16px;line-height:1.6;color:var(--tx2)}
+.fml-prev:empty{display:none}
+math-field{width:100%;font-size:28px;padding:8px 12px;border:.5px solid var(--bd2);border-radius:var(--rm);background:var(--bg);color:var(--tx);display:block}
 </style>
 </head>
 <body>
@@ -398,6 +405,21 @@ body.dys .fctxt{line-height:1.7;font-size:20px}
 </div>
 
 <!-- QR MODAL -->
+<div class="modal-overlay hidden" id="fml-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeFormula()">✕</button>
+    <h3 style="font-size:16px;font-weight:600;margin-bottom:4px">Formule mathématique</h3>
+    <p class="help" style="font-size:14px;color:var(--tx2);margin-bottom:10px">Écrire la formule dans le cadre ci-dessous, avec le clavier ou les boutons du clavier mathématique (icône de clavier à droite du cadre). Aucune syntaxe à connaître : ce que tu vois est ce que les élèves verront.</p>
+    <div id="fml-load" style="font-size:16px;color:var(--tx2)">Chargement de l'éditeur de formules…</div>
+    <div id="fml-host"></div>
+    <small class="help" id="fml-help" style="display:none">La formule sera insérée dans le texte de la carte, à l'endroit du curseur. Tu peux mélanger texte et formules dans une même carte.</small>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button class="btn bp" style="flex:1" onclick="insertFormula()">Insérer dans la carte</button>
+      <button class="btn" style="flex:1" onclick="closeFormula()">Annuler</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay hidden" id="qr-modal">
   <div class="modal">
     <button class="modal-close" onclick="closeQR()">✕</button>
@@ -452,6 +474,49 @@ const SPACING_DAYS={1:0,2:1,3:3};
 const LANGS=[{v:'fr-BE',l:'Français – BE'},{v:'fr-FR',l:'Français – FR'},{v:'en-GB',l:'Anglais (UK)'},{v:'en-US',l:'Anglais (US)'},{v:'nl-BE',l:'Néerlandais – BE'},{v:'nl-NL',l:'Néerlandais – NL'},{v:'de-DE',l:'Allemand'},{v:'es-ES',l:'Espagnol'},{v:'it-IT',l:'Italien'},{v:'pt-PT',l:'Portugais'},{v:'ar',l:'Arabe'},{v:'zh-CN',l:'Chinois'},{v:'ja-JP',l:'Japonais'}];
 
 function uid(){return'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return(c==='x'?r:(r&3|8)).toString(16)})}
+// FORMULES — stockées dans le texte entre $...$ (LaTeX) ; saisie visuelle par MathLive, rendu par KaTeX
+const KATEX_BASE='https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.11/';
+const MATHLIVE_SRC='https://cdn.jsdelivr.net/npm/mathlive@0.111.4/mathlive.min.js';
+const FML_RE=/\$(\S(?:[^$\n]*?\S)?)\$/g;
+let katexP=null,mathliveP=null;
+function loadScript(src){return new Promise((res,rej)=>{const sc=document.createElement('script');sc.src=src;sc.onload=res;sc.onerror=()=>rej(new Error('chargement impossible : '+src));document.head.appendChild(sc)})}
+function loadKatex(){
+  if(window.katex)return Promise.resolve();
+  if(!katexP){
+    const l=document.createElement('link');l.rel='stylesheet';l.href=KATEX_BASE+'katex.min.css';document.head.appendChild(l);
+    katexP=loadScript(KATEX_BASE+'katex.min.js').catch(e=>{katexP=null;throw e});
+  }
+  return katexP;
+}
+function loadMathLive(){
+  if(window.MathfieldElement)return Promise.resolve();
+  if(!mathliveP)mathliveP=loadScript(MATHLIVE_SRC).catch(e=>{mathliveP=null;throw e});
+  return mathliveP;
+}
+function hasMath(t){return new RegExp(FML_RE.source).test(t||'')}
+// texte -> HTML : texte échappé ; chaque formule devient un emplacement composé ensuite par typeset()
+function rich(t){
+  t=t||'';let out='',last=0,m;const re=new RegExp(FML_RE.source,'g');
+  while((m=re.exec(t))){out+=esc(t.slice(last,m.index))+'<span class="mf" data-l="'+esc(m[1])+'">'+esc(m[0])+'</span>';last=m.index+m[0].length}
+  return out+esc(t.slice(last));
+}
+// version texte (impression, voix) : formules retirées ou composées en HTML
+function plainNoMath(t){return(t||'').replace(new RegExp(FML_RE.source,'g'),' formule ')}
+function richPrint(t){
+  t=t||'';let out='',last=0,m;const re=new RegExp(FML_RE.source,'g');
+  while((m=re.exec(t))){
+    out+=esc(t.slice(last,m.index));
+    try{out+=window.katex?katex.renderToString(m[1],{throwOnError:false}):esc(m[0])}catch{out+=esc(m[0])}
+    last=m.index+m[0].length;
+  }
+  return out+esc(t.slice(last));
+}
+function typeset(root){
+  const els=[...(root||document).querySelectorAll('.mf:not([data-done])')];
+  if(!els.length)return;
+  loadKatex().then(()=>els.forEach(e=>{if(e.dataset.done)return;try{katex.render(e.dataset.l,e,{throwOnError:false});e.dataset.done='1'}catch{}})).catch(()=>{});
+}
+new MutationObserver(()=>typeset(document.body)).observe(document.documentElement,{childList:true,subtree:true});
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
 function setDys(on){document.body.classList.toggle('dys',on);const b=document.getElementById('dys-toggle');if(b)b.setAttribute('aria-pressed',on?'true':'false')}
 function toggleDys(){const on=!document.body.classList.contains('dys');setDys(on);try{localStorage.setItem('flashplai_dys',on?'1':'0')}catch{}}
@@ -729,7 +794,7 @@ async function deactivateCode(){
 
 // RESULTS
 function detailCards(deck,s){
-  const list=ids=>ids.map(id=>deck?.cards.find(c=>c.id===id)).filter(Boolean).map(c=>'<li>'+esc(c.question)+'</li>').join('');
+  const list=ids=>ids.map(id=>deck?.cards.find(c=>c.id===id)).filter(Boolean).map(c=>'<li>'+rich(c.question)+'</li>').join('');
   const l1=list(s.c1),l2=list(s.c2);
   if(!l1&&!l2)return'';
   return'<details class="res-det"><summary>Voir quelles cartes (à revoir : '+s.c1.length+', presque : '+s.c2.length+')</summary>'+(l1?'<h4>À revoir</h4><ul>'+l1+'</ul>':'')+(l2?'<h4>Presque</h4><ul>'+l2+'</ul>':'')+'</details>';
@@ -772,7 +837,7 @@ async function openResults(deckId,deckName){
   }
   if(hardCards.length){
     html+='<div style="font-size:14px;font-weight:500;color:var(--tx2);margin:16px 0 8px">Cartes difficiles (≥ 50% en boîte 1)</div>';
-    for(const c of hardCards)html+='<div class="hard-card"><b>Q :</b> '+esc(c.question)+'<br><span style="color:#555;font-size:14px">R : '+esc(c.answer)+'</span></div>';
+    for(const c of hardCards)html+='<div class="hard-card"><b>Q :</b> '+rich(c.question)+'<br><span style="color:#555;font-size:14px">R : '+rich(c.answer)+'</span></div>';
   }
   document.getElementById('results-content').innerHTML=html;
 }
@@ -843,7 +908,7 @@ function redrawCards(){
   if(!editCards.length){el.innerHTML='<div class="empty" style="padding:20px"><div style="font-size:28px">🃏</div><p>Aucune carte</p></div>';return}
   el.innerHTML=editCards.map((c,i)=>{
     const hm=hasMed(c);const op=openPanels.has(c.id);
-    return'<div class="cw" id="cw-'+c.id+'"><div class="crow"><div class="cnum">'+(i+1)+'</div><div class="cflds"><input type="text" value="'+esc(c.question)+'" oninput="editCards['+i+'].question=this.value" placeholder="Question / Recto"><input type="text" value="'+esc(c.answer)+'" oninput="editCards['+i+'].answer=this.value" placeholder="Réponse / Verso"></div><div class="cright"><button class="cdel" onclick="removeCard('+i+')">✕</button><button id="mt-'+c.id+'" class="cmtog'+(hm?' hm':'')+'" onclick="toggleMP(\''+c.id+'\')">'+(op?'▴':'▾')+(hm?' ●':'')+'</button></div></div><div id="mp-'+c.id+'" class="cmp'+(op?' open':'')+'">'+mSec(i,'q','Question')+mSec(i,'a','Réponse')+'</div></div>';
+    return'<div class="cw" id="cw-'+c.id+'"><div class="crow"><div class="cnum">'+(i+1)+'</div><div class="cflds"><input type="text" id="ci-'+c.id+'-q" value="'+esc(c.question)+'" oninput="cardInput('+i+',\'q\',this)" placeholder="Question / Recto"><input type="text" id="ci-'+c.id+'-a" value="'+esc(c.answer)+'" oninput="cardInput('+i+',\'a\',this)" placeholder="Réponse / Verso"><div class="fml-row"><button type="button" class="fml-btn" onclick="openFormula('+i+',\'q\')">∑ Formule dans la question</button><button type="button" class="fml-btn" onclick="openFormula('+i+',\'a\')">∑ Formule dans la réponse</button></div><div class="fml-prev" id="fp-'+c.id+'">'+previewHtml(c)+'</div></div><div class="cright"><button class="cdel" onclick="removeCard('+i+')">✕</button><button id="mt-'+c.id+'" class="cmtog'+(hm?' hm':'')+'" onclick="toggleMP(\''+c.id+'\')">'+(op?'▴':'▾')+(hm?' ●':'')+'</button></div></div><div id="mp-'+c.id+'" class="cmp'+(op?' open':'')+'">'+mSec(i,'q','Question')+mSec(i,'a','Réponse')+'</div></div>';
   }).join('');
 }
 
@@ -958,7 +1023,7 @@ function removeAud(id,side){const i=editCards.findIndex(c=>c.id===id);if(i<0)ret
 
 // TTS
 function getVoice(lang){const vs=window.speechSynthesis?.getVoices()||[];return vs.find(v=>v.lang===lang)||vs.find(v=>v.lang.startsWith(lang.split('-')[0]))||null}
-function speakText(text,lang){if(!window.speechSynthesis)return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang=lang;const v=getVoice(lang);if(v)u.voice=v;window.speechSynthesis.speak(u)}
+function speakText(text,lang){if(!window.speechSynthesis)return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(plainNoMath(text));u.lang=lang;const v=getVoice(lang);if(v)u.voice=v;window.speechSynthesis.speak(u)}
 function ttsPrev(id,side){const i=editCards.findIndex(c=>c.id===id);if(i<0)return;const text=side==='q'?editCards[i].question:editCards[i].answer;if(!text.trim()){toast('Saisis d\'abord le texte');return}speakText(text,side==='q'?document.getElementById('dlangQ').value:document.getElementById('dlangA').value)}
 
 // CSV
@@ -1030,7 +1095,7 @@ function buildPrompt(){
   const pub=lvl?'\nPublic : élèves de '+lvl+' en Fédération Wallonie-Bruxelles. Adapter le vocabulaire et la longueur des phrases à ce niveau.':'';
   const cx=ctx?'\nContexte de ma classe, à utiliser dans les questions et les exemples :\n'+ctx+'\n':'';
   if(lq!==la)return'Génère '+n+' flashcards bilingues sur le thème : '+s+'.\nRecto en '+lb(lq)+', verso en '+lb(la)+'.'+pub+cx+'\nFormat strict — une carte par bloc, séparés par ---\n\nQ: [mot ou phrase en '+lb(lq)+']\nR: [traduction en '+lb(la)+']\n---\n\nCommence directement par la première carte, sans introduction.';
-  return'Génère '+n+' flashcards en '+lb(lq)+' sur le thème : '+s+'.'+pub+cx+'\nFormat strict — une carte par bloc, séparés par ---\n\nQ: [question courte]\nR: [réponse concise]\n---\n\nCommence directement par la première carte, sans introduction.';
+  return'Génère '+n+' flashcards en '+lb(lq)+' sur le thème : '+s+'.'+pub+cx+'\nFormat strict — une carte par bloc, séparés par ---\n\nQ: [question courte]\nR: [réponse concise]\n---\n\nSi une formule mathématique est nécessaire, l\'écrire en LaTeX entre signes dollar, par exemple $\\frac{3}{4}$.\nCommence directement par la première carte, sans introduction.';
 }
 function buildPromptPreview(){
   const el=document.getElementById('prompt-preview');if(el)el.textContent=buildPrompt();
@@ -1043,14 +1108,15 @@ function openClaude(){window.open('https://claude.ai/new?q='+encodeURIComponent(
 function copyPrompt(){navigator.clipboard.writeText(buildPrompt()).then(()=>toast('Prompt copié !'))}
 
 // SAVE
-function printCards(){
+async function printCards(){
   const d=getDeckData();
   if(!d.cards.length){toast('Ajoute au moins une carte complète (question et réponse)');return}
   const w=window.open('','_blank');if(!w){toast('Autorise l\'ouverture de fenêtres pour imprimer');return}
+  if(d.cards.some(c=>hasMath(c.question)||hasMath(c.answer))){try{await loadKatex()}catch{}}
   const cell=(c,side)=>{
     const t=side==='q'?c.question:c.answer;
     const img=side==='q'?(c.qImg||c.qImgUrl):(c.aImg||c.aImgUrl);
-    return'<div class="k">'+(img?'<img src="'+esc(img)+'">':'')+'<div>'+esc(t)+'</div></div>';
+    return'<div class="k">'+(img?'<img src="'+esc(img)+'">':'')+'<div>'+richPrint(t)+'</div></div>';
   };
   let pages='';
   for(let i=0;i<d.cards.length;i+=8){
@@ -1062,8 +1128,47 @@ function printCards(){
     pages+='<section><p class="h">'+esc(d.name)+' — questions (recto)</p><div class="g">'+row('q')+'</div></section>';
     pages+='<section><p class="h">'+esc(d.name)+' — réponses (verso)</p><div class="g">'+row('a')+'</div></section>';
   }
-  w.document.write('<html><head><meta charset="UTF-8"><title>FlashPLAI — '+esc(d.name)+'</title><style>@page{size:A4;margin:10mm}body{font-family:Arial,sans-serif;margin:0}section{page-break-after:always}.h{font-size:14px;color:#666;margin:0 0 6px}.g{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(4,60mm);gap:0}.k{border:1px dashed #888;padding:8mm;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-size:20px;line-height:1.4;overflow:hidden}.k img{max-width:100%;max-height:30mm;margin-bottom:4px}.e{border-style:none}</style></head><body>'+pages+'<script>setTimeout(function(){window.print()},300)<\/script></body></html>');
+  w.document.write('<html><head><meta charset="UTF-8"><title>FlashPLAI — '+esc(d.name)+'</title><link rel="stylesheet" href="'+KATEX_BASE+'katex.min.css"><style>@page{size:A4;margin:10mm}body{font-family:Arial,sans-serif;margin:0}section{page-break-after:always}.h{font-size:14px;color:#666;margin:0 0 6px}.g{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(4,60mm);gap:0}.k{border:1px dashed #888;padding:8mm;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-size:20px;line-height:1.4;overflow:hidden}.k img{max-width:100%;max-height:30mm;margin-bottom:4px}.e{border-style:none}</style></head><body>'+pages+'<script>setTimeout(function(){window.print()},900)<\/script></body></html>');
   w.document.close();
+}
+function previewHtml(c){return(hasMath(c.question)||hasMath(c.answer))?'<div><b>Aperçu :</b> '+rich(c.question)+'</div><div>'+rich(c.answer)+'</div>':''}
+function cardInput(i,side,el){
+  const c=editCards[i];if(!c)return;
+  if(side==='q')c.question=el.value;else c.answer=el.value;
+  const pv=document.getElementById('fp-'+c.id);if(pv)pv.innerHTML=previewHtml(c);
+}
+let fmlCtx=null;
+async function openFormula(i,side){
+  const c=editCards[i];if(!c)return;
+  const inp=document.getElementById('ci-'+c.id+'-'+side);if(!inp)return;
+  const text=inp.value;let a=inp.selectionStart??text.length,b=inp.selectionEnd??a,init='';
+  // curseur dans une formule existante : on la modifie au lieu d'en ajouter une
+  const re=new RegExp(FML_RE.source,'g');let m;
+  while((m=re.exec(text))){if(a>=m.index&&a<=m.index+m[0].length){a=m.index;b=m.index+m[0].length;init=m[1];break}}
+  fmlCtx={i,side,a,b,id:c.id};
+  document.getElementById('fml-modal').classList.remove('hidden');
+  document.getElementById('fml-load').style.display='block';
+  document.getElementById('fml-load').textContent='Chargement de l\'éditeur de formules…';
+  document.getElementById('fml-help').style.display='none';
+  const host=document.getElementById('fml-host');host.innerHTML='';
+  try{await loadMathLive()}catch{document.getElementById('fml-load').textContent='Impossible de charger l\'éditeur de formules (connexion ?). Tu peux écrire la formule entre deux signes $ directement dans la carte (notation LaTeX).';return}
+  document.getElementById('fml-load').style.display='none';
+  document.getElementById('fml-help').style.display='block';
+  const mf=document.createElement('math-field');mf.id='fml-field';mf.setAttribute('aria-label','Formule mathématique');
+  host.appendChild(mf);
+  try{mf.mathVirtualKeyboardPolicy='auto'}catch{}
+  mf.value=init;
+  setTimeout(()=>{try{mf.focus()}catch{}},50);
+}
+function closeFormula(){document.getElementById('fml-modal').classList.add('hidden');document.getElementById('fml-host').innerHTML='';fmlCtx=null}
+function insertFormula(){
+  const mf=document.getElementById('fml-field');if(!mf||!fmlCtx)return;
+  const latex=(mf.value||'').replace(/\$/g,'').replace(/\s*\n\s*/g,' ').trim();
+  if(!latex){toast('Écris d\'abord une formule');return}
+  const c=editCards[fmlCtx.i];const inp=document.getElementById('ci-'+fmlCtx.id+'-'+fmlCtx.side);if(!c||!inp){closeFormula();return}
+  const t=inp.value;inp.value=t.slice(0,fmlCtx.a)+'$'+latex+'$'+t.slice(fmlCtx.b);
+  cardInput(fmlCtx.i,fmlCtx.side,inp);
+  closeFormula();toast('Formule insérée');
 }
 function getDeckData(){return{name:document.getElementById('dname').value.trim(),langQ:document.getElementById('dlangQ').value,langA:document.getElementById('dlangA').value,tts:document.getElementById('dtts').value,shuffle:document.getElementById('dshuffle').value,noSkipBox:document.getElementById('dno-skip').checked,weightedReview:document.getElementById('dweighted').checked,spaced:document.getElementById('dspaced').checked,cards:editCards.filter(c=>c.question.trim()&&c.answer.trim())}}
 function withTimeout(promise,ms){
@@ -1174,7 +1279,7 @@ function renderStudy(){
   const aImg=card.aImg||card.aImgUrl?'<img src="'+(card.aImg||card.aImgUrl)+'" class="fcimg" alt="">':'';
   const qAbt=card.qAud?'<button class="fcplay" onclick="event.stopPropagation();playAud(\'q\')">▶ Écouter</button>':'<button class="fcplay" onclick="event.stopPropagation();speakSide(\'q\')">▶ Prononcer</button>';
   const aAbt=card.aAud?'<button class="fcplay" onclick="event.stopPropagation();playAud(\'a\')">▶ Écouter</button>':'<button class="fcplay" onclick="event.stopPropagation();speakSide(\'a\')">▶ Prononcer</button>';
-  document.getElementById('scontent').innerHTML='<div class="fcw" onclick="flipCard()"><div class="fc" id="fc"><div class="fcf"><div class="fclbl">Question</div>'+qImg+'<div class="fctxt">'+esc(card.question)+'</div>'+qAbt+'<div class="fchint">Clique pour voir la réponse</div></div><div class="fcf fcback"><div class="fclbl">Réponse</div>'+aImg+'<div class="fctxt">'+esc(card.answer)+'</div>'+aAbt+'</div></div></div><div id="sbtn" style="text-align:center"><button class="btn bp" onclick="flipCard()" style="padding:10px 24px">Voir la réponse</button></div><div id="rbtn" style="display:none"><div style="font-size:14px;color:var(--tx3);text-align:center;margin-bottom:8px">Comment c\'était ?</div><div class="sr"><button class="btn br" onclick="rate(1)">A revoir<small>Difficile</small></button><button class="btn" onclick="rate(2)">Presque<small>Hésitation</small></button><button class="btn bt" onclick="rate(3)">Je sais !<small>Maîtrisé</small></button></div></div>';
+  document.getElementById('scontent').innerHTML='<div class="fcw" onclick="flipCard()"><div class="fc" id="fc"><div class="fcf"><div class="fclbl">Question</div>'+qImg+'<div class="fctxt">'+rich(card.question)+'</div>'+qAbt+'<div class="fchint">Clique pour voir la réponse</div></div><div class="fcf fcback"><div class="fclbl">Réponse</div>'+aImg+'<div class="fctxt">'+rich(card.answer)+'</div>'+aAbt+'</div></div></div><div id="sbtn" style="text-align:center"><button class="btn bp" onclick="flipCard()" style="padding:10px 24px">Voir la réponse</button></div><div id="rbtn" style="display:none"><div style="font-size:14px;color:var(--tx3);text-align:center;margin-bottom:8px">Comment c\'était ?</div><div class="sr"><button class="btn br" onclick="rate(1)">A revoir<small>Difficile</small></button><button class="btn" onclick="rate(2)">Presque<small>Hésitation</small></button><button class="btn bt" onclick="rate(3)">Je sais !<small>Maîtrisé</small></button></div></div>';
 }
 
 function playAud(side){if(sAudio){sAudio.pause();sAudio=null}const src=side==='q'?window._sc?.qAud:window._sc?.aAud;if(!src)return;sAudio=new Audio(src);sAudio.play().catch(()=>{})}
