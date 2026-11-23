@@ -10,6 +10,7 @@ Application de cartes mémoire pédagogiques pour les enseignants de la Fédéra
 
 - Comptes enseignants — paquets sauvegardés dans le cloud
 - Création de cartes : saisie manuelle, import Markdown, import CSV, générateur Claude
+- Import CSV : lecteur complet (guillemets doublés, cellules multilignes, séparateur , ; ou tabulation, UTF-8 ou ANSI Excel) ; modèle Excel et CSV dans `modeles/`, téléchargeables depuis l'onglet Importer > CSV
 - Import intelligent (Markdown, CSV) : une question déjà présente (casse et ponctuation finale ignorées) met à jour la réponse de la carte existante au lieu de créer un doublon, donc la progression des élèves est conservée ; les autres cartes sont ajoutées
 - Images : upload, URL externe, pictogrammes ARASAAC (FR + EN)
 - Audio : enregistrement micro + synthèse vocale TTS bilingue

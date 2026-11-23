@@ -366,7 +366,7 @@ body.editing .dys-fab{bottom:70px}
     <button class="btn bp bw" onclick="importMd()">Importer les cartes</button>
   </div>
   <div id="tab-csv" style="display:none">
-    <div style="background:var(--bg2);border:.5px solid var(--bd);border-radius:var(--rm);padding:12px;margin-bottom:12px;font-size:14px;color:var(--tx2)">Importe un fichier CSV (séparateur , ou ;).</div>
+    <div style="background:var(--bg2);border:.5px solid var(--bd);border-radius:var(--rm);padding:12px;margin-bottom:12px;font-size:14px;color:var(--tx2)">Importer un fichier CSV (séparateur , ou ;). Première ligne = en-têtes, puis une ligne par carte.<br>Dans Excel : Fichier &gt; Enregistrer sous &gt; « CSV UTF-8 ». FlashPLAI lit le CSV, pas le fichier .xlsx.<br><a href="modeles/modele-flashplai.xlsx" download>Télécharger le modèle Excel</a> · <a href="modeles/modele-flashplai.csv" download>Télécharger le modèle CSV</a></div>
     <div class="fld"><label>Fichier CSV</label><input type="file" id="csv-file" accept=".csv,.txt" style="padding:8px;border:.5px solid var(--bd2)" onchange="handleCSV(event)"></div>
     <div id="csv-config" style="display:none">
       <div class="row" style="margin-bottom:10px;gap:10px">
@@ -1211,23 +1211,44 @@ function ttsPrev(id,side){const i=editCards.findIndex(c=>c.id===id);if(i<0)retur
 
 // CSV
 function parseLine(line,sep){const r=[];let cur='',inQ=false;for(const c of line){if(c==='"')inQ=!inQ;else if(c===sep&&!inQ){r.push(cur.trim().replace(/^"|"$/g,''));cur=''}else cur+=c}r.push(cur.trim().replace(/^"|"$/g,''));return r}
+// Lecteur CSV complet : guillemets doublés (""), cellules sur plusieurs lignes, séparateur , ; ou tabulation
+function parseCSVText(text,sep){
+  const rows=[];let row=[],cur='',inQ=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(inQ){if(c==='"'){if(text[i+1]==='"'){cur+='"';i++}else inQ=false}else cur+=c}
+    else if(c==='"')inQ=true;
+    else if(c===sep){row.push(cur.trim());cur=''}
+    else if(c==='\n'||c==='\r'){if(c==='\r'&&text[i+1]==='\n')i++;row.push(cur.trim());cur='';if(row.some(x=>x!==''))rows.push(row);row=[]}
+    else cur+=c;
+  }
+  row.push(cur.trim());if(row.some(x=>x!==''))rows.push(row);
+  return rows;
+}
+// Excel « CSV (séparateur : point-virgule) » enregistre en ANSI (Windows-1252) : on essaie UTF-8, sinon Windows-1252
+function decodeCSV(buf){
+  try{return new TextDecoder('utf-8',{fatal:true}).decode(buf).replace(/^\uFEFF/,'')}
+  catch{return new TextDecoder('windows-1252').decode(buf)}
+}
 function handleCSV(evt){
   const file=evt.target.files[0];if(!file)return;
   const reader=new FileReader();
   reader.onload=e=>{
-    const text=e.target.result;const lines=text.trim().split(/\r?\n/).filter(l=>l.trim());
-    if(lines.length<2){toast('Fichier trop court');return}
-    const sep=lines[0].includes(';')?';':',';
-    const headers=parseLine(lines[0],sep);
-    const rows=lines.slice(1,6).map(l=>parseLine(l,sep));
-    csvParsed={headers,allLines:lines,sep};
+    const text=decodeCSV(e.target.result);
+    const first=text.split(/\r?\n/)[0]||'';
+    const counts={';':first.split(';').length,',':first.split(',').length,'\t':first.split('\t').length};
+    const sep=Object.keys(counts).sort((x,y)=>counts[y]-counts[x])[0];
+    const all=parseCSVText(text,sep);
+    if(all.length<2){toast('Fichier trop court : une ligne d\'en-têtes puis au moins une carte');return}
+    const headers=all[0];
+    csvParsed={headers,rows:all.slice(1),sep};
     const opts=headers.map((h,i)=>'<option value="'+i+'">'+esc(h)+'</option>').join('');
     document.getElementById('csv-col-q').innerHTML=opts;
     document.getElementById('csv-col-a').innerHTML=headers.map((h,i)=>'<option value="'+i+'"'+(i===1?' selected':'')+'>'+esc(h)+'</option>').join('');
-    document.getElementById('csv-preview-wrap').innerHTML='<table><tr>'+headers.map(h=>'<th>'+esc(h)+'</th>').join('')+'</tr>'+rows.map(r=>'<tr>'+r.map(c=>'<td>'+esc((c||'').substring(0,40))+'</td>').join('')+'</tr>').join('')+'</table>';
+    document.getElementById('csv-preview-wrap').innerHTML='<table><tr>'+headers.map(h=>'<th>'+esc(h)+'</th>').join('')+'</tr>'+csvParsed.rows.slice(0,5).map(r=>'<tr>'+r.map(c=>'<td>'+esc((c||'').substring(0,40))+'</td>').join('')+'</tr>').join('')+'</table>';
     document.getElementById('csv-config').style.display='block';
   };
-  reader.readAsText(file,'UTF-8');
+  reader.readAsArrayBuffer(file);
 }
 // Import intelligent : une carte importée dont la question existe déjà met à jour la carte existante
 // (même identifiant, donc progression des élèves conservée) ; les autres sont ajoutées.
@@ -1261,7 +1282,7 @@ function importCSV(){
   const qc=parseInt(document.getElementById('csv-col-q').value);
   const ac=parseInt(document.getElementById('csv-col-a').value);
   if(qc===ac){toast('Choisis deux colonnes différentes');return}
-  const rows=csvParsed.allLines.slice(1).map(l=>parseLine(l,csvParsed.sep));
+  const rows=csvParsed.rows;
   const cards=rows.filter(r=>r[qc]&&r[ac]).map(r=>mkCard(r[qc],r[ac]));
   if(!cards.length){toast('Aucune donnée valide');return}
   const mr=mergeImport(cards);
