@@ -522,7 +522,7 @@ const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{autoRefresh
 let user=null,decks=[],editId=null,editCards=[];
 let studyDeck=null,studyQueue=[],studyIdx=0,studyCards=[];
 let openPanels=new Set(),imgCtx=null,activeRec=null,sAudio=null,toastTimer=null;
-let authMode='login',isStudent=false,sName='',sCodeId='',sCodeStr='',isRecovery=false;
+let authMode='login',isStudent=false,sName='',sCodeId='',sCodeStr='',isRecovery=false,progressLost=false;
 let csvParsed=null,activeCodeId=null,activeCodeStr='',hasExpiry=false;
 let hasSpaced=true,spacingOff=false,studySkipped=0,aiPending=false;
 const SPACING_DAYS={1:0,2:1,3:3};
@@ -675,28 +675,26 @@ async function studentLogin(){
   const btn=document.getElementById('sbtn2');
   btn.disabled=true;btn.innerHTML='<div class="spin"></div>';
   try{
-    const{data,error}=await sb.from('class_codes').select('id,deck_id').eq('code',code).eq('active',true).single();
-    if(error||!data){toast('Code invalide ou expiré');return}
-    // Même identifiant écrit avec une autre casse (Sophie / sophie) : on reprend l'orthographe déjà enregistrée
-    let known=null;
-    try{const{data:ex}=await sb.from('student_progress').select('student_name').eq('code_id',data.id).ilike('student_name',name.replace(/[\\%_]/g,m=>'\\'+m)).limit(1);known=ex&&ex[0]?ex[0].student_name:null}catch{}
-    sName=known||name;sCodeId=data.id;sCodeStr=code;
-    sessionStorage.setItem('ffwb_s',JSON.stringify({name:sName,codeId:data.id,code}));
+    // Le serveur vérifie le code (actif, non expiré) et ne renvoie que le paquet et la progression de cet élève.
+    // Il reprend aussi l'orthographe déjà enregistrée (Sophie / sophie).
+    const{data,error}=await sb.rpc('flash_student_open',{p_code:code,p_name:name});
+    if(error){toast('Erreur : '+error.message);return}
+    if(!data){toast('Code invalide ou expiré');return}
+    sName=data.student_name;sCodeId=data.code_id;sCodeStr=code;progressLost=false;
+    sessionStorage.setItem('ffwb_s',JSON.stringify({name:sName,codeId:data.code_id,code}));
     rememberProfile(sName,code);
-    await openStudentDeck(data.deck_id);
+    openStudentDeck(data);
   }catch(e){toast('Erreur : '+e.message)}
   finally{btn.disabled=false;btn.textContent='Accéder aux cartes'}
 }
 
-async function openStudentDeck(deckId){
-  const{data:deck}=await sb.from('decks').select('*').eq('id',deckId).single();
+function openStudentDeck(payload){
+  const deck=payload.deck;
   if(!deck){toast('Paquet introuvable');return}
-  const{data:cards}=await sb.from('cards').select('*').eq('deck_id',deckId).order('position');
-  const{data:prog}=await sb.from('student_progress').select('card_id,box,last_seen').eq('code_id',sCodeId).eq('student_name',sName);
-  const pm={};(prog||[]).forEach(p=>{pm[p.card_id]={box:p.box,lastSeen:p.last_seen}});
+  const pm={};(payload.progress||[]).forEach(p=>{pm[p.card_id]={box:p.box,lastSeen:p.last_seen}});
   const d={id:deck.id,name:deck.name,langQ:deck.lang_q,langA:deck.lang_a,tts:deck.tts,shuffle:deck.shuffle||'leitner',
     noSkipBox:!!deck.no_skip_box,weightedReview:!!deck.weighted_review,spaced:!!deck.spaced,
-    cards:(cards||[]).map(c=>mapCard(c,pm[c.id]))};
+    cards:(payload.cards||[]).map(c=>mapCard(c,pm[c.id]))};
   isStudent=true;
   document.getElementById('student-bar').style.display='block';
   document.getElementById('student-bar').innerHTML=`<span class="student-badge">Élève : ${esc(sName)} · Code ${esc(sCodeStr)}</span>`;
@@ -773,7 +771,9 @@ async function saveDeckCloud(name,langQ,langA,tts,shuffle,cards,noSkipBox,weight
 
 async function updateProgress(cardId,box,lastSeen){
   if(isStudent){
-    await sb.from('student_progress').upsert({code_id:sCodeId,deck_id:studyDeck.id,student_name:sName,card_id:cardId,box,last_seen:lastSeen,updated_at:new Date().toISOString()},{onConflict:'code_id,student_name,card_id'});
+    // Enregistrement par fonction serveur : refusé si le code a expiré ou a été désactivé entre-temps
+    const{data:ok,error:err}=await sb.rpc('flash_student_save',{p_code:sCodeStr,p_name:sName,p_card_id:cardId,p_box:box,p_last_seen:lastSeen||new Date().toISOString()});
+    if((err||ok===false)&&!progressLost){progressLost=true;toast('Ta progression n\'est plus enregistrée : le code de classe n\'est plus valide. Préviens ton enseignant.')}
   }else{
     await sb.from('cards').update({box,last_seen:lastSeen}).eq('id',cardId);
   }
