@@ -27,9 +27,9 @@ flashfwb/
 ├── index.html        Application complète (v5.4)
 ├── plai-logo.jpg     Logo PLAI affiché dans l'interface
 ├── vercel.json       Configuration du déploiement Vercel
-├── setup.sql         Script SQL initial (v5.1)
-├── setup_v52.sql     Migration v5.2 — codes de classe + progression élèves
-├── setup_v53.sql     Migration v5.3 — ordre aléatoire
+├── setup.sql         Script SQL initial (v5.1) : tables decks et cards
+├── migration_v2.sql  Migration v2 : colonnes Leitner, codes de classe, progression élèves
+├── migration_v3.sql  Migration v3 : correctif de sécurité (RLS de student_progress)
 └── README.md         Ce fichier
 ```
 
@@ -62,8 +62,10 @@ Les clés se trouvent dans Supabase → **Project Settings → API**.
 Dans Supabase → **SQL Editor → New query**, exécute les scripts dans cet ordre :
 
 1. `setup.sql` — tables principales (decks, cards)
-2. `setup_v52.sql` — codes de classe + progression élèves
-3. `setup_v53.sql` — colonne shuffle
+2. `migration_v2.sql` — colonnes Leitner (ordre, sans saut de boîte, pondération), codes de classe, progression élèves
+3. `migration_v3.sql` — correctif de sécurité : la progression élève n'est lisible et modifiable que pour un code de classe actif
+
+Les scripts v2 et v3 sont relançables sans risque. Sur une base neuve, v2 contient déjà la règle de sécurité de v3 : v3 sert aux bases créées avant ce correctif.
 
 Résultat attendu à chaque fois : `Success. No rows returned`
 
