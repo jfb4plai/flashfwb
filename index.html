@@ -362,6 +362,7 @@ body.editing .dys-fab{bottom:70px}
       <div class="code-mono">Q: Question<br>R: Réponse<br>IMAGE: https://url-optionnelle.jpg<br>---</div>
     </div>
     <div class="fld"><label>Colle ton texte ici :</label><textarea id="md-input" placeholder="Q: Ta question&#10;R: Ta réponse&#10;---"></textarea></div>
+    <small class="help">Si une question existe déjà dans le paquet (même texte, majuscules et ponctuation finale ignorées), sa réponse est mise à jour au lieu de créer un doublon : les élèves gardent leur progression sur cette carte. Les autres cartes sont ajoutées. Rien n'est enregistré avant « Sauvegarder ».</small>
     <button class="btn bp bw" onclick="importMd()">Importer les cartes</button>
   </div>
   <div id="tab-csv" style="display:none">
@@ -1228,6 +1229,33 @@ function handleCSV(evt){
   };
   reader.readAsText(file,'UTF-8');
 }
+// Import intelligent : une carte importée dont la question existe déjà met à jour la carte existante
+// (même identifiant, donc progression des élèves conservée) ; les autres sont ajoutées.
+const normQ=t=>(t||'').toLowerCase().replace(/\s+/g,' ').replace(/[\s?:.!]+$/,'').trim();
+function mergeImport(list){
+  const byQ=new Map();editCards.forEach(c=>{const k=normQ(c.question);if(k&&!byQ.has(k))byQ.set(k,c)});
+  const used=new Set();const added=[];let updated=0,same=0,audioDropped=0;
+  for(const n of list){
+    const k=normQ(n.question);const ex=k?byQ.get(k):null;
+    if(ex&&!used.has(ex.id)){
+      used.add(ex.id);
+      if(ex.answer.trim()===n.answer.trim())same++;
+      else{ex.answer=n.answer;updated++;if(ex.aAud){ex.aAud=null;audioDropped++}}
+      if(n.qImgUrl&&!ex.qImg&&!ex.qImgUrl)ex.qImgUrl=n.qImgUrl;
+    }else added.push(n);
+  }
+  editCards=[...editCards,...added];foldNew(added);
+  return{added:added.length,updated,same,audioDropped};
+}
+function importMsg(r,src){
+  const p=[];
+  if(r.added)p.push(r.added+' ajoutée'+(r.added>1?'s':''));
+  if(r.updated)p.push(r.updated+' mise'+(r.updated>1?'s':'')+' à jour');
+  if(r.same)p.push(r.same+' identique'+(r.same>1?'s':''));
+  let m=p.join(', ')+src;
+  if(r.audioDropped)m+=' · audio de réponse retiré pour '+r.audioDropped+' carte'+(r.audioDropped>1?'s':'')+' modifiée'+(r.audioDropped>1?'s':'');
+  return m;
+}
 function importCSV(){
   if(!csvParsed){toast('Charge un fichier CSV d\'abord');return}
   const qc=parseInt(document.getElementById('csv-col-q').value);
@@ -1236,10 +1264,10 @@ function importCSV(){
   const rows=csvParsed.allLines.slice(1).map(l=>parseLine(l,csvParsed.sep));
   const cards=rows.filter(r=>r[qc]&&r[ac]).map(r=>mkCard(r[qc],r[ac]));
   if(!cards.length){toast('Aucune donnée valide');return}
-  editCards=[...editCards,...cards];foldNew(cards);
+  const mr=mergeImport(cards);
   document.getElementById('csv-file').value='';document.getElementById('csv-config').style.display='none';csvParsed=null;
   switchMain('cartes');
-  redrawCards();toast(cards.length+' cartes importées depuis le CSV');
+  redrawCards();toast(importMsg(mr,' (CSV)'));
 }
 
 // MARKDOWN
@@ -1259,9 +1287,9 @@ function parseMd(txt){
 function importMd(){
   const parsed=parseMd(document.getElementById('md-input').value);
   if(!parsed.length){toast('Aucune carte trouvée');return}
-  editCards=[...editCards,...parsed];foldNew(parsed);document.getElementById('md-input').value='';aiPending=true;document.getElementById('ai-note').style.display='block';
+  const mr=mergeImport(parsed);document.getElementById('md-input').value='';aiPending=true;document.getElementById('ai-note').style.display='block';
   switchMain('cartes');
-  redrawCards();toast(parsed.length+' cartes importées');
+  redrawCards();toast(importMsg(mr,''));
 }
 
 // CLAUDE PROMPT
