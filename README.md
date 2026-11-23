@@ -24,6 +24,7 @@ Application de cartes mémoire pédagogiques pour les enseignants de la Fédéra
 - Application installable (PWA) : manifeste, icônes et service worker qui met en cache la coquille de l'app. Sans réseau, l'écran s'ouvre mais les paquets et la progression (Supabase) ne se chargent pas
 - Impression des cartes recto-verso (bouton « Imprimer les cartes » de l'éditeur) : 8 cartes par page A4, questions puis réponses, colonnes inversées au verso
 - Profils élèves mémorisés sur l'appareil (8 maximum, effaçables) : un clic remplit prénom/code ; stockés dans le navigateur de l'appareil seulement
+- Durée de validité du code de classe (sans limite, 1 semaine, 1 mois, fin d'année scolaire) : nécessite `migration_v5.sql` ; le même code peut être prolongé
 - Mode sombre supporté
 
 ---
@@ -39,6 +40,7 @@ flashfwb/
 ├── setup.sql         Script SQL initial (v5.1) : tables decks et cards
 ├── migration_v2.sql  Migration v2 : colonnes Leitner, codes de classe, progression élèves
 ├── migration_v3.sql  Migration v3 : correctif de sécurité (RLS de student_progress)
+├── migration_v5.sql  Migration v5 : expiration des codes de classe
 ├── migration_v4.sql  Migration v4 : option « espacer les révisions » (colonne decks.spaced)
 └── README.md         Ce fichier
 ```
@@ -76,6 +78,7 @@ Dans Supabase → **SQL Editor → New query**, exécute les scripts dans cet or
 3. `migration_v3.sql` — correctif de sécurité : la progression élève n'est lisible et modifiable que pour un code de classe actif
 
 4. `migration_v4.sql` — option « espacer les révisions » par paquet (ajout d'une colonne, facultatif : sans elle, l'option est masquée)
+5. `migration_v5.sql` — expiration des codes de classe (colonne `class_codes.expires_at` + deux politiques élèves recréées ; facultatif : sans elle, l'option est masquée)
 
 Les scripts v2, v3 et v4 sont relançables sans risque. Sur une base neuve, v2 contient déjà la règle de sécurité de v3 : v3 sert aux bases créées avant ce correctif.
 

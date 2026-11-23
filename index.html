@@ -410,6 +410,12 @@ body.dys .fctxt{line-height:1.7;font-size:20px}
       <button class="btn bp" style="flex:1" onclick="copyCode()">Copier le code</button>
       <button class="btn" style="flex:1" onclick="printQR()">Imprimer</button>
     </div>
+    <div id="exp-row" style="display:none;margin-bottom:10px">
+      <label for="exp-sel" style="font-size:16px;font-weight:500">Durée de validité du code</label>
+      <select id="exp-sel" onchange="setExpiry(this.value)"><option value="keep">Changer la durée…</option><option value="none">Sans limite</option><option value="7">1 semaine à partir d'aujourd'hui</option><option value="30">1 mois à partir d'aujourd'hui</option><option value="year">Jusqu'à la fin de l'année scolaire (30 juin)</option></select>
+      <small class="help" id="exp-status"></small>
+      <small class="help">Après la date, les élèves ne peuvent plus entrer avec ce code ni enregistrer leur progression. Vous gardez tout dans le tableau de bord, et vous pouvez prolonger le même code.</small>
+    </div>
     <details class="stu-codes">
       <summary>Ne pas enregistrer de prénoms ? Utiliser des codes élèves</summary>
       <p class="help">Par défaut, les élèves saisissent leur prénom. Pour ne stocker aucun prénom, donner à chaque élève un code personnel (E01, E02…) à saisir à la place. Vous seul gardez la correspondance code ↔ élève.</p>
@@ -439,7 +445,7 @@ let user=null,decks=[],editId=null,editCards=[];
 let studyDeck=null,studyQueue=[],studyIdx=0,studyCards=[];
 let openPanels=new Set(),imgCtx=null,activeRec=null,sAudio=null,toastTimer=null;
 let authMode='login',isStudent=false,sName='',sCodeId='',sCodeStr='',isRecovery=false;
-let csvParsed=null,activeCodeId=null,activeCodeStr='';
+let csvParsed=null,activeCodeId=null,activeCodeStr='',hasExpiry=false;
 let hasSpaced=true,spacingOff=false,studySkipped=0,aiPending=false;
 const SPACING_DAYS={1:0,2:1,3:3};
 
@@ -656,21 +662,47 @@ async function updateProgress(cardId,box,lastSeen){
 function genCode(){const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';return'FWB-'+Array.from({length:4},()=>c[Math.floor(Math.random()*c.length)]).join('')}
 
 async function openCodeModal(deckId,deckName){
-  const{data}=await sb.from('class_codes').select('id,code').eq('deck_id',deckId).eq('active',true).maybeSingle();
-  let str,cid;
-  if(data){str=data.code;cid=data.id}
+  // expires_at existe seulement après migration_v5.sql : on retente sans la colonne si elle manque
+  let r=await sb.from('class_codes').select('id,code,expires_at').eq('deck_id',deckId).eq('active',true).maybeSingle();
+  hasExpiry=!r.error;
+  if(r.error)r=await sb.from('class_codes').select('id,code').eq('deck_id',deckId).eq('active',true).maybeSingle();
+  const data=r.data;
+  let str,cid,exp=null;
+  if(data){str=data.code;cid=data.id;exp=data.expires_at||null}
   else{
     const{data:nc,error}=await sb.from('class_codes').insert({deck_id:deckId,user_id:user.id,code:genCode(),active:true}).select().single();
     if(error){toast('Erreur : '+error.message);return}
     str=nc.code;cid=nc.id;
   }
   activeCodeId=cid;activeCodeStr=str;
+  document.getElementById('exp-row').style.display=hasExpiry?'block':'none';
+  showExpiry(exp);
   document.getElementById('qr-deck-name').textContent=deckName;
   document.getElementById('qr-code-text').textContent=str;
   const container=document.getElementById('qr-container');
   container.innerHTML='';
   new QRCode(container,{text:window.location.origin+window.location.pathname+'#code='+str,width:180,height:180,colorDark:'#1a1a1a',colorLight:'#ffffff'});
   document.getElementById('qr-modal').classList.remove('hidden');
+}
+function showExpiry(exp){
+  const sel=document.getElementById('exp-sel');sel.value='keep';
+  const st=document.getElementById('exp-status');
+  if(!exp){st.textContent='Actuellement : sans limite de durée.';return}
+  const d=new Date(exp),past=d<new Date(),f=d.toLocaleDateString('fr-BE');
+  st.textContent=past?'Ce code est expiré depuis le '+f+'. Choisir une durée pour le réactiver.':'Valable jusqu\'au '+f+' (23 h 59).';
+}
+function expiryDate(v){
+  if(v==='none')return null;
+  const d=new Date();
+  if(v==='year'){const y=d.getMonth()>=6?d.getFullYear()+1:d.getFullYear();return new Date(y,5,30,23,59,0).toISOString()}
+  d.setDate(d.getDate()+parseInt(v));d.setHours(23,59,0,0);return d.toISOString();
+}
+async function setExpiry(v){
+  if(v==='keep')return;
+  const exp=expiryDate(v);
+  const{error}=await sb.from('class_codes').update({expires_at:exp}).eq('id',activeCodeId);
+  if(error){toast('Erreur : '+error.message);return}
+  showExpiry(exp);toast(exp?'Durée de validité enregistrée':'Code sans limite de durée');
 }
 function closeQR(){document.getElementById('qr-modal').classList.add('hidden')}
 function copyCode(){navigator.clipboard.writeText(activeCodeStr).then(()=>toast('Code copié : '+activeCodeStr))}
