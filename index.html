@@ -165,7 +165,7 @@ label{font-size:13px;color:var(--tx2);display:block;margin-bottom:5px}
   <div id="auth-landing">
     <span class="pill">Gratuit · Pour les écoles coopérantes du Pôle de la Ville de Liège (PLAI)</span>
     <h1 class="landing-h">Des cartes mémoire pour que chaque élève <b>révise à son rythme</b></h1>
-    <p class="landing-lead">Créer un paquet de cartes en quelques minutes. Partager un code de classe. Les élèves révisent sans compte, avec des boîtes de Leitner : les cartes réussies s'espacent, les cartes ratées reviennent plus souvent.</p>
+    <p class="landing-lead">Créer un paquet de cartes en quelques minutes. Partager un code de classe. Les élèves révisent sans compte. Chaque carte est rangée dans une boîte de Leitner (à revoir, presque, maîtrisé) selon leur réponse, et les cartes à revoir passent en premier.</p>
     <div class="bens">
       <div class="ben"><span class="ic" aria-hidden="true">🗂️</span><h3>Créer vite</h3><p>Saisie manuelle, import Markdown ou CSV, pictogrammes ARASAAC, audio.</p></div>
       <div class="ben"><span class="ic" aria-hidden="true">🔑</span><h3>Élèves sans compte</h3><p>Un code de classe ou un QR code suffit pour réviser.</p></div>
@@ -205,7 +205,7 @@ label{font-size:13px;color:var(--tx2);display:block;margin-bottom:5px}
     </div>
     <div id="sf" style="display:none">
       <div class="stu-steps"><ol><li>Écrire ton prénom.</li><li>Écrire le code donné par ton enseignant.</li><li>Cliquer sur « Accéder aux cartes ».</li></ol></div>
-      <div class="fld"><label for="sname">Ton prénom</label><input type="text" id="sname" placeholder="ex : Sophie"><small class="help">Ta progression est enregistrée sous ce prénom. Écrire le même prénom à chaque fois.</small></div>
+      <div class="fld"><label for="sname">Ton prénom</label><input type="text" id="sname" placeholder="ex : Sophie"><small class="help">Ta progression est enregistrée sous ce prénom. Écrire le prénom de la même façon à chaque fois (majuscule comprise).</small></div>
       <div class="fld"><label for="scode">Code de la classe</label><input type="text" id="scode" class="code-input-big" placeholder="FWB-XXXX" maxlength="8" oninput="this.value=this.value.toUpperCase()"><small class="help">Le code est donné par ton enseignant (au tableau, sur une feuille ou par QR code).</small></div>
       <button class="btn bpu bw" id="sbtn2" onclick="studentLogin()">Accéder aux cartes</button>
     </div>
