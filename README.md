@@ -21,6 +21,9 @@ Application de cartes mémoire pédagogiques pour les enseignants de la Fédéra
 - Tableau de bord : pour chaque élève, la liste des cartes à revoir et « presque »
 - Générateur IA : niveau, nombre de cartes et contexte de classe dans le prompt ; cartes importées à relire avant sauvegarde
 - Accueil à deux entrées (« Je suis enseignant·e » / « Je suis élève »), le lien QR ouvre directement le formulaire élève
+- Application installable (PWA) : manifeste, icônes et service worker qui met en cache la coquille de l'app. Sans réseau, l'écran s'ouvre mais les paquets et la progression (Supabase) ne se chargent pas
+- Impression des cartes recto-verso (bouton « Imprimer les cartes » de l'éditeur) : 8 cartes par page A4, questions puis réponses, colonnes inversées au verso
+- Profils élèves mémorisés sur l'appareil (8 maximum, effaçables) : un clic remplit prénom/code ; stockés dans le navigateur de l'appareil seulement
 - Mode sombre supporté
 
 ---
@@ -31,6 +34,7 @@ Application de cartes mémoire pédagogiques pour les enseignants de la Fédéra
 flashfwb/
 ├── index.html        Application complète (v5.4)
 ├── plai-logo.jpg     Logo PLAI affiché dans l'interface
+├── manifest.webmanifest, sw.js, icon-192.png, icon-512.png   Installation (PWA)
 ├── vercel.json       Configuration du déploiement Vercel
 ├── setup.sql         Script SQL initial (v5.1) : tables decks et cards
 ├── migration_v2.sql  Migration v2 : colonnes Leitner, codes de classe, progression élèves

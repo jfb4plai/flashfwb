@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FlashPLAI</title>
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#EF9F27">
+<link rel="apple-touch-icon" href="/icon-192.png">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
@@ -223,6 +226,7 @@ body.dys .fctxt{line-height:1.7;font-size:20px}
       <div class="stu-steps"><ol><li>Écrire ton prénom (ou ton code élève).</li><li>Écrire le code donné par ton enseignant.</li><li>Cliquer sur « Accéder aux cartes ».</li></ol></div>
       <div class="fld"><label for="sname">Ton prénom ou ton code élève</label><input type="text" id="sname" placeholder="ex : Sophie ou E07" maxlength="30" autocomplete="off"><small class="help">Écrire seulement ton prénom, sans nom de famille. Si ton enseignant t'a donné un code élève, écrire ce code à la place. Ta progression est enregistrée sous ce nom : l'écrire de la même façon à chaque fois.</small></div>
       <div class="fld"><label for="scode">Code de la classe</label><input type="text" id="scode" class="code-input-big" placeholder="FWB-XXXX" maxlength="8" oninput="this.value=this.value.toUpperCase()"><small class="help">Le code est donné par ton enseignant (au tableau, sur une feuille ou par QR code).</small></div>
+      <div id="sprofiles" style="display:none;margin-bottom:12px"></div>
       <button class="btn bpu bw" id="sbtn2" onclick="studentLogin()">Accéder aux cartes</button>
     </div>
   </div>
@@ -344,6 +348,7 @@ body.dys .fctxt{line-height:1.7;font-size:20px}
     <button class="btn bp" style="flex:2" onclick="saveDeck()">Sauvegarder</button>
     <button class="btn bt" style="flex:1" onclick="saveThenStudy()">Réviser</button>
     <button class="btn" onclick="shareDeck()">Partager</button>
+    <button class="btn" onclick="printCards()">Imprimer les cartes</button>
   </div>
   <div id="share-area"></div>
 </div>
@@ -522,6 +527,18 @@ async function updatePwd(){
   showV('vh');
 }
 
+const PROF_KEY='flashplai_profiles';
+function getProfiles(){try{return JSON.parse(localStorage.getItem(PROF_KEY)||'[]')}catch{return[]}}
+function rememberProfile(name,code){try{const l=getProfiles().filter(p=>!(p.name===name&&p.code===code));l.unshift({name,code});localStorage.setItem(PROF_KEY,JSON.stringify(l.slice(0,8)))}catch{}}
+function useProfile(i){const p=getProfiles()[i];if(!p)return;document.getElementById('sname').value=p.name;document.getElementById('scode').value=p.code;studentLogin()}
+function forgetProfiles(){if(!confirm('Effacer les prénoms et codes enregistrés sur cet appareil ?'))return;try{localStorage.removeItem(PROF_KEY)}catch{}renderProfiles()}
+function renderProfiles(){
+  const el=document.getElementById('sprofiles');if(!el)return;
+  const l=getProfiles();
+  if(!l.length){el.style.display='none';el.innerHTML='';return}
+  el.style.display='block';
+  el.innerHTML='<div style="font-size:16px;font-weight:500;margin-bottom:6px">Déjà utilisés sur cet appareil</div><div style="display:flex;flex-wrap:wrap;gap:8px">'+l.map((p,i)=>'<button class="btn" style="font-size:16px" onclick="useProfile('+i+')">'+esc(p.name)+' · '+esc(p.code)+'</button>').join('')+'</div><button class="btn" style="font-size:16px;margin-top:8px" onclick="forgetProfiles()">Effacer cette liste sur cet appareil</button><small class="help">Cliquer sur ton nom pour entrer directement. Cette liste reste sur cet appareil seulement.</small>';
+}
 function normId(s){return(s||'').replace(/\s+/g,' ').trim().slice(0,30)}
 async function studentLogin(){
   const name=normId(document.getElementById('sname').value);
@@ -538,6 +555,7 @@ async function studentLogin(){
     try{const{data:ex}=await sb.from('student_progress').select('student_name').eq('code_id',data.id).ilike('student_name',name.replace(/[\\%_]/g,m=>'\\'+m)).limit(1);known=ex&&ex[0]?ex[0].student_name:null}catch{}
     sName=known||name;sCodeId=data.id;sCodeStr=code;
     sessionStorage.setItem('ffwb_s',JSON.stringify({name:sName,codeId:data.id,code}));
+    rememberProfile(sName,code);
     await openStudentDeck(data.deck_id);
   }catch(e){toast('Erreur : '+e.message)}
   finally{btn.disabled=false;btn.textContent='Accéder aux cartes'}
@@ -993,6 +1011,28 @@ function openClaude(){window.open('https://claude.ai/new?q='+encodeURIComponent(
 function copyPrompt(){navigator.clipboard.writeText(buildPrompt()).then(()=>toast('Prompt copié !'))}
 
 // SAVE
+function printCards(){
+  const d=getDeckData();
+  if(!d.cards.length){toast('Ajoute au moins une carte complète (question et réponse)');return}
+  const w=window.open('','_blank');if(!w){toast('Autorise l\'ouverture de fenêtres pour imprimer');return}
+  const cell=(c,side)=>{
+    const t=side==='q'?c.question:c.answer;
+    const img=side==='q'?(c.qImg||c.qImgUrl):(c.aImg||c.aImgUrl);
+    return'<div class="k">'+(img?'<img src="'+esc(img)+'">':'')+'<div>'+esc(t)+'</div></div>';
+  };
+  let pages='';
+  for(let i=0;i<d.cards.length;i+=8){
+    const chunk=d.cards.slice(i,i+8);
+    const row=side=>{let h='';for(let r=0;r<4;r++){const a=chunk[r*2],b=chunk[r*2+1];
+      // verso : colonnes inversées pour que chaque réponse tombe derrière sa question (recto-verso, bord long)
+      const L=side==='q'?a:b,R=side==='q'?b:a;
+      h+=(L?cell(L,side):'<div class="k e"></div>')+(R?cell(R,side):'<div class="k e"></div>')}return h};
+    pages+='<section><p class="h">'+esc(d.name)+' — questions (recto)</p><div class="g">'+row('q')+'</div></section>';
+    pages+='<section><p class="h">'+esc(d.name)+' — réponses (verso)</p><div class="g">'+row('a')+'</div></section>';
+  }
+  w.document.write('<html><head><meta charset="UTF-8"><title>FlashPLAI — '+esc(d.name)+'</title><style>@page{size:A4;margin:10mm}body{font-family:Arial,sans-serif;margin:0}section{page-break-after:always}.h{font-size:14px;color:#666;margin:0 0 6px}.g{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(4,60mm);gap:0}.k{border:1px dashed #888;padding:8mm;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-size:20px;line-height:1.4;overflow:hidden}.k img{max-width:100%;max-height:30mm;margin-bottom:4px}.e{border-style:none}</style></head><body>'+pages+'<script>setTimeout(function(){window.print()},300)<\/script></body></html>');
+  w.document.close();
+}
 function getDeckData(){return{name:document.getElementById('dname').value.trim(),langQ:document.getElementById('dlangQ').value,langA:document.getElementById('dlangA').value,tts:document.getElementById('dtts').value,shuffle:document.getElementById('dshuffle').value,noSkipBox:document.getElementById('dno-skip').checked,weightedReview:document.getElementById('dweighted').checked,spaced:document.getElementById('dspaced').checked,cards:editCards.filter(c=>c.question.trim()&&c.answer.trim())}}
 function withTimeout(promise,ms){
   return Promise.race([promise,new Promise((_,rej)=>setTimeout(()=>rej(new Error('Délai dépassé ('+ms/1000+'s) — ouvre DevTools > Console pour voir où ça bloque')),ms))]);
@@ -1151,6 +1191,8 @@ function restartStudy(){buildQ();document.getElementById('cview').style.display=
 (async()=>{
   populateLangSelects();
   try{if(localStorage.getItem('flashplai_dys')==='1')setDys(true)}catch{}
+  renderProfiles();
+  if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('/sw.js').catch(()=>{});
   if(window.speechSynthesis){window.speechSynthesis.getVoices();window.speechSynthesis.onvoiceschanged=()=>{}}
   const hash=window.location.hash.slice(1);const params=new URLSearchParams(hash);
   const code=params.get('code');
