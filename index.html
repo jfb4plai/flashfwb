@@ -348,7 +348,14 @@ body.editing .dys-fab{bottom:70px}
       <label style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--tx);cursor:pointer;margin-bottom:0">
         <input type="checkbox" id="dspaced"> Espacer les révisions dans le temps
       </label>
-      <small class="help">Une carte « Presque » revient après 1 jour, une carte « Maîtrisé » après 3 jours ; une carte « A revoir » est toujours proposée. Ordre Leitner seulement. Ces délais sont des repères simples, pas des valeurs tirées d'une étude : adaptez-les à votre séquence.</small>
+      <small class="help">Une carte « A revoir » est toujours proposée. Ordre Leitner seulement. Les délais ci-dessous décident quand les autres cartes reviennent.</small>
+      <div id="gap-row" style="display:flex;gap:16px;flex-wrap:wrap;margin-top:8px">
+        <label style="font-size:16px;color:var(--tx)">Carte « Presque » : revient après
+          <input type="number" id="dgap2" min="1" max="365" step="1" value="1" inputmode="numeric" style="width:5em;font-size:16px;padding:6px"> jour(s)</label>
+        <label style="font-size:16px;color:var(--tx)">Carte « Maîtrisé » : revient après
+          <input type="number" id="dgap3" min="1" max="365" step="1" value="3" inputmode="numeric" style="width:5em;font-size:16px;padding:6px"> jour(s)</label>
+      </div>
+      <small class="help">Exemple : évaluation dans 10 jours, saisir 1 et 2 ; évaluation dans 3 mois, saisir 3 et 14. Plus l'évaluation est lointaine, plus les révisions peuvent être espacées. La recherche ne montre pas qu'un espacement qui s'allonge à chaque révision soit nécessairement meilleur (Latimier, 2019). Ces valeurs sont des repères à adapter à votre séquence, pas des seuils issus d'une étude. Les valeurs par défaut (1 et 3 jours) n'ont pas non plus de source.</small>
     </div>
   </div>
   </div>
@@ -551,6 +558,12 @@ let studyDeck=null,studyQueue=[],studyIdx=0,studyCards=[];
 let openPanels=new Set(),imgCtx=null,activeRec=null,sAudio=null,toastTimer=null;
 let authMode='login',isStudent=false,sName='',sCodeId='',sCodeStr='',isRecovery=false,progressLost=false;
 let csvParsed=null,activeCodeId=null,activeCodeStr='',hasExpiry=false;
+let hasGaps=true; // faux si la migration v9 (colonnes gap2, gap3) n'est pas faite : délais fixes 1 et 3 jours
+// Délais de révision (jours) lus dans l'éditeur : entiers de 1 à 365, la boîte 3 n'est jamais plus courte que la boîte 2
+function readGaps(){
+  const n=(id,def)=>{const v=parseInt(document.getElementById(id).value,10);return Number.isFinite(v)?Math.min(365,Math.max(1,v)):def};
+  const g2=n('dgap2',1);return{gap2:g2,gap3:Math.max(g2,n('dgap3',3))};
+}
 let hasSpaced=true,spacingOff=false,studySkipped=0,aiPending=false;
 const SPACING_DAYS={1:0,2:1,3:3};
 
@@ -913,7 +926,7 @@ function openStudentDeck(payload,pending){
   if(!deck){toast('Paquet introuvable');return}
   const pm=FlashOffline.currentBoxes(payload.progress,pending);
   const d={id:deck.id,name:deck.name,langQ:deck.lang_q,langA:deck.lang_a,tts:deck.tts,shuffle:deck.shuffle||'leitner',
-    noSkipBox:!!deck.no_skip_box,weightedReview:!!deck.weighted_review,spaced:!!deck.spaced,
+    noSkipBox:!!deck.no_skip_box,weightedReview:!!deck.weighted_review,spaced:!!deck.spaced,gap2:deck.gap2||1,gap3:deck.gap3||3,
     cards:(payload.cards||[]).map(c=>mapCard(c,pm[c.id]))};
   isStudent=true;
   document.getElementById('student-bar').style.display='block';
@@ -946,8 +959,10 @@ sb.auth.onAuthStateChange(async(event,session)=>{
 
 async function loadDecks(){
   const base='id,name,lang_q,lang_a,tts,shuffle,no_skip_box,weighted_review,created_at';
-  let{data,error}=await sb.from('decks').select(base+(hasSpaced?',spaced':'')).order('created_at',{ascending:false});
-  if(error&&hasSpaced&&/spaced/i.test(error.message||'')){hasSpaced=false;({data,error}=await sb.from('decks').select(base).order('created_at',{ascending:false}))}
+  const sel=()=>base+(hasSpaced?',spaced':'')+(hasGaps?',gap2,gap3':'');
+  let{data,error}=await sb.from('decks').select(sel()).order('created_at',{ascending:false});
+  if(error&&hasGaps&&/gap[23]/i.test(error.message||'')){hasGaps=false;({data,error}=await sb.from('decks').select(sel()).order('created_at',{ascending:false}))}
+  if(error&&hasSpaced&&/spaced/i.test(error.message||'')){hasSpaced=false;({data,error}=await sb.from('decks').select(sel()).order('created_at',{ascending:false}))}
   if(error)throw error;
   const ids=(data||[]).map(d=>d.id);
   let allCards=[];
@@ -958,7 +973,7 @@ async function loadDecks(){
   }
   decks=(data||[]).map(d=>({
     id:d.id,name:d.name,langQ:d.lang_q,langA:d.lang_a,tts:d.tts,shuffle:d.shuffle||'leitner',
-    noSkipBox:!!d.no_skip_box,weightedReview:!!d.weighted_review,spaced:!!d.spaced,
+    noSkipBox:!!d.no_skip_box,weightedReview:!!d.weighted_review,spaced:!!d.spaced,gap2:d.gap2||1,gap3:d.gap3||3,
     createdAt:new Date(d.created_at).getTime(),
     cards:allCards.filter(c=>c.deck_id===d.id).map(c=>mapCard(c,null))
   }));
@@ -968,7 +983,7 @@ async function loadDecks(){
 async function saveDeckCloud(name,langQ,langA,tts,shuffle,cards,noSkipBox,weightedReview,spaced){
   const id=editId||uid();
   console.log('[SAVE] 1/3 upsert deck...',id.slice(0,8));
-  const{error:de}=await sb.from('decks').upsert({id,user_id:user.id,name,lang_q:langQ,lang_a:langA,tts,shuffle,no_skip_box:!!noSkipBox,weighted_review:!!weightedReview,...(hasSpaced?{spaced:!!spaced}:{})});
+  const{error:de}=await sb.from('decks').upsert({id,user_id:user.id,name,lang_q:langQ,lang_a:langA,tts,shuffle,no_skip_box:!!noSkipBox,weighted_review:!!weightedReview,...(hasSpaced?{spaced:!!spaced}:{}),...(hasGaps?readGaps():{})});
   if(de){console.error('[SAVE] deck error:',de.message);throw de;}
   console.log('[SAVE] 2/3 deck ok — upsert',cards.length,'cartes...');
   if(editId){
@@ -1175,6 +1190,9 @@ function openCreate(id){
   document.getElementById('dweighted').checked=d?.weightedReview||false;
   document.getElementById('dspaced').checked=d?.spaced||false;
   document.getElementById('spaced-row').style.display=hasSpaced?'':'none';
+  document.getElementById('dgap2').value=d?.gap2||1;
+  document.getElementById('dgap3').value=d?.gap3||3;
+  document.getElementById('gap-row').style.display=hasGaps?'flex':'none';
   aiPending=false;document.getElementById('ai-note').style.display='none';
   toggleLeitnerOpts();
   editCards=d?d.cards.map(c=>({...c})):[];
@@ -1611,7 +1629,7 @@ function withTimeout(promise,ms){
   return Promise.race([promise,new Promise((_,rej)=>setTimeout(()=>rej(new Error('Délai dépassé ('+ms/1000+'s) — ouvre DevTools > Console pour voir où ça bloque')),ms))]);
 }
 function updateLocalDeck(id,name,langQ,langA,tts,shuffle,noSkipBox,weightedReview,spaced,cards){
-  const saved={id,name,langQ,langA,tts,shuffle,noSkipBox,weightedReview,spaced,createdAt:Date.now(),cards:[...cards]};
+  const saved={id,name,langQ,langA,tts,shuffle,noSkipBox,weightedReview,spaced,...readGaps(),createdAt:Date.now(),cards:[...cards]};
   const idx=decks.findIndex(d=>d.id===id);
   if(idx>=0)decks[idx]=saved;else decks.unshift(saved);
 }
@@ -1703,7 +1721,8 @@ function isDue(c){
   if(c.box===1||!c.lastSeen)return true;
   const a=new Date(c.lastSeen);if(isNaN(a))return true;a.setHours(0,0,0,0);
   const b=new Date();b.setHours(0,0,0,0);
-  return Math.round((b-a)/864e5)>=(SPACING_DAYS[c.box]??0);
+  const gaps={1:0,2:studyDeck?.gap2||SPACING_DAYS[2],3:studyDeck?.gap3||SPACING_DAYS[3]};
+  return Math.round((b-a)/864e5)>=(gaps[c.box]??0);
 }
 function updBoxes(){[1,2,3].forEach(b=>{const n=studyCards.filter(c=>c.box===b).length;document.getElementById('b'+b).textContent=n;document.getElementById('cb'+b).textContent=n})}
 function openStudy(id){stopRec();isStudent=false;document.getElementById('student-bar').style.display='none';const d=decks.find(x=>x.id===id);if(!d)return;openStudyCommon(d)}
