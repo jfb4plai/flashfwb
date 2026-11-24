@@ -7,7 +7,8 @@
 <link rel="manifest" href="/manifest.webmanifest">
 <meta name="theme-color" content="#EF9F27">
 <link rel="apple-touch-icon" href="/icon-192.png">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="vendor/supabase.js"></script>
+<script src="offline-core.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -158,6 +159,9 @@ body.dys .fctxt{line-height:1.7;font-size:20px}
 .modal-close{position:absolute;top:12px;right:12px;background:none;border:none;cursor:pointer;font-size:20px;color:var(--tx3);line-height:1}
 .code-badge{font-size:28px;font-weight:700;letter-spacing:4px;color:var(--tx);background:var(--bg2);border-radius:var(--rm);padding:10px 16px;text-align:center;margin:10px 0;font-family:monospace}
 .code-input-big{font-size:20px;letter-spacing:3px;text-align:center;font-family:monospace;text-transform:uppercase}
+.sync-badge{font-size:16px;margin-left:8px;padding:4px 12px;border-radius:100px;background:var(--bg2);border:.5px solid var(--bd2);display:inline-block}
+.sync-badge.off{background:var(--al);border-color:var(--am);color:#633806}
+.sync-badge.bad{background:var(--rl);border-color:#F7C1C1;color:#791F1F}
 .student-badge{background:var(--pul);color:#3C3489;border:.5px solid #AFA9EC;border-radius:100px;font-size:14px;padding:4px 12px;display:inline-flex;align-items:center;gap:5px}
 .save-ind{font-size:14px;color:var(--tx3);display:flex;align-items:center;gap:5px;margin-left:auto}
 .claude-box{background:var(--al);border:.5px solid var(--am);border-radius:var(--rr);padding:16px}
@@ -513,6 +517,7 @@ body.editing .dys-fab{bottom:70px}
       <select id="exp-sel" onchange="setExpiry(this.value)"><option value="keep">Changer la durée…</option><option value="none">Sans limite</option><option value="7">1 semaine à partir d'aujourd'hui</option><option value="30">1 mois à partir d'aujourd'hui</option><option value="year">Jusqu'à la fin de l'année scolaire (30 juin)</option></select>
       <small class="help" id="exp-status"></small>
       <small class="help">Après la date, les élèves ne peuvent plus entrer avec ce code ni enregistrer leur progression. Vous gardez tout dans le tableau de bord, et vous pouvez prolonger le même code.</small>
+      <small class="help">Les réponses faites hors ligne avant l'expiration restent acceptées pendant 7 jours après la date, au prochain passage de l'élève en ligne (migration v8). Un code désactivé n'accepte plus rien.</small>
     </div>
     <details class="stu-codes">
       <summary>Ne pas enregistrer de prénoms ? Utiliser des codes élèves</summary>
@@ -551,7 +556,7 @@ const LANGS=[{v:'fr-BE',l:'Français – BE'},{v:'fr-FR',l:'Français – FR'},{
 
 function uid(){return'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return(c==='x'?r:(r&3|8)).toString(16)})}
 // FORMULES — stockées dans le texte entre $...$ (LaTeX) ; saisie visuelle par MathLive, rendu par KaTeX
-const KATEX_BASE='https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.11/';
+const KATEX_BASE='vendor/katex/';
 const MATHLIVE_SRC='https://cdn.jsdelivr.net/npm/mathlive@0.111.4/mathlive.min.js';
 const FML_RE=/\$(\S(?:[^$\n]*?\S)?)\$/g;
 let katexP=null,mathliveP=null;
@@ -678,14 +683,179 @@ const PROF_KEY='flashplai_profiles';
 function getProfiles(){try{return JSON.parse(localStorage.getItem(PROF_KEY)||'[]')}catch{return[]}}
 function rememberProfile(name,code){try{const l=getProfiles().filter(p=>!(p.name===name&&p.code===code));l.unshift({name,code});localStorage.setItem(PROF_KEY,JSON.stringify(l.slice(0,8)))}catch{}}
 function useProfile(i){const p=getProfiles()[i];if(!p)return;document.getElementById('sname').value=p.name;document.getElementById('scode').value=p.code;studentLogin()}
-function forgetProfiles(){if(!confirm('Effacer les prénoms et codes enregistrés sur cet appareil ?'))return;try{localStorage.removeItem(PROF_KEY)}catch{}renderProfiles()}
+async function forgetProfiles(){
+  let n=0;try{n=(await dbAll('outbox')).length}catch{}
+  if(!confirm('Effacer les prénoms, les codes et les copies de paquets enregistrés sur cet appareil ?'+(n?'\n\nATTENTION : '+n+' réponse'+(n>1?'s':'')+' pas encore envoyée'+(n>1?'s':'')+(n>1?' seront perdues':' sera perdue')+'. Se connecter d\'abord pour les envoyer.':'')))return;
+  try{localStorage.removeItem(PROF_KEY)}catch{}
+  try{await dbClear('decks');await dbClear('outbox')}catch{}
+  try{if(window.caches)await caches.delete('flashplai-img-v1')}catch{}
+  renderProfiles();toast('Données de cet appareil effacées');
+}
 function renderProfiles(){
   const el=document.getElementById('sprofiles');if(!el)return;
   const l=getProfiles();
   if(!l.length){el.style.display='none';el.innerHTML='';return}
   el.style.display='block';
-  el.innerHTML='<div style="font-size:16px;font-weight:500;margin-bottom:6px">Déjà utilisés sur cet appareil</div><div style="display:flex;flex-wrap:wrap;gap:8px">'+l.map((p,i)=>'<button class="btn" style="font-size:16px" onclick="useProfile('+i+')">'+esc(p.name)+' · '+esc(p.code)+'</button>').join('')+'</div><button class="btn" style="font-size:16px;margin-top:8px" onclick="forgetProfiles()">Effacer cette liste sur cet appareil</button><small class="help">Cliquer sur ton nom pour entrer directement. Cette liste reste sur cet appareil seulement.</small>';
+  el.innerHTML='<div style="font-size:16px;font-weight:500;margin-bottom:6px">Déjà utilisés sur cet appareil</div><div style="display:flex;flex-wrap:wrap;gap:8px">'+l.map((p,i)=>'<button class="btn" style="font-size:16px" onclick="useProfile('+i+')">'+esc(p.name)+' · '+esc(p.code)+'</button>').join('')+'</div><button class="btn" style="font-size:16px;margin-top:8px" onclick="forgetProfiles()">Effacer ces données sur cet appareil</button><small class="help">Cliquer sur ton nom pour entrer directement. Cette liste, la copie des cartes et les réponses pas encore envoyées restent sur cet appareil seulement.</small>';
 }
+// ===== HORS LIGNE (élève) : copie locale du paquet, file de réponses, synchronisation =====
+// Données dans IndexedDB « flashplai-offline » : decks (copie par code+prénom), outbox (une entrée par carte).
+// Logique pure et testée : offline-core.js (FlashOffline).
+let _offDb=null;
+function offDb(){
+  if(_offDb)return _offDb;
+  _offDb=new Promise((res,rej)=>{
+    if(!window.indexedDB){rej(new Error('IndexedDB indisponible'));return}
+    const r=indexedDB.open('flashplai-offline',1);
+    r.onupgradeneeded=()=>{const d=r.result;d.createObjectStore('decks',{keyPath:'key'});d.createObjectStore('outbox',{keyPath:'k'})};
+    r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);
+  });
+  _offDb.catch(()=>{_offDb=null});
+  return _offDb;
+}
+function idbDo(store,mode,fn){
+  return offDb().then(db=>new Promise((res,rej)=>{
+    const tx=db.transaction(store,mode);let req;
+    try{req=fn(tx.objectStore(store),tx)}catch(e){rej(e);return}
+    tx.oncomplete=()=>res(req&&'result' in req?req.result:undefined);
+    tx.onerror=()=>rej(tx.error);tx.onabort=()=>rej(tx.error);
+  }));
+}
+const dbGet=(st,k)=>idbDo(st,'readonly',o=>o.get(k));
+const dbPut=(st,v)=>idbDo(st,'readwrite',o=>o.put(v));
+const dbAll=st=>idbDo(st,'readonly',o=>o.getAll());
+const dbClear=st=>idbDo(st,'readwrite',o=>o.clear());
+
+let offState={online:navigator.onLine,pending:0,syncedAt:null,problem:null};
+let flushTimer=null,flushing=false,problemToast=false;
+const curKey=()=>FlashOffline.studentKey(sCodeStr,sName);
+
+async function pendingFor(sk){return(await dbAll('outbox')).filter(i=>i.sk===sk)}
+async function queueAnswer(cardId,box,lastSeen){
+  await dbPut('outbox',{k:FlashOffline.outboxKey(sCodeStr,sName,cardId),sk:curKey(),code:sCodeStr,name:sName,card_id:cardId,box,last_seen:lastSeen});
+  offState.pending=(await pendingFor(curKey())).length;
+  renderSyncBadge();scheduleFlush();
+}
+// Supprime de la file les réponses envoyées, sauf celles que l'élève a modifiées entre-temps
+function delSent(items){
+  return idbDo('outbox','readwrite',(o,tx)=>{
+    for(const it of items){const g=o.get(it.k);g.onsuccess=()=>{const cur=g.result;if(cur&&cur.last_seen===it.last_seen&&cur.box===it.box)o.delete(it.k)}}
+    return null;
+  });
+}
+function renderSyncBadge(){
+  const el=document.getElementById('sync-badge');if(!el)return;
+  el.textContent=FlashOffline.badgeText({online:offState.online,pending:offState.pending,syncedAt:offState.syncedAt,problem:offState.problem});
+  el.className='sync-badge'+(offState.problem?' bad':(!offState.online||offState.pending?' off':''));
+}
+// Synchronisation côté serveur ; si la migration v8 manque encore, retombe sur l'envoi carte par carte (ancienne fonction)
+async function syncRpc(code,name,items){
+  const r=await sb.rpc('flash_student_sync',{p_code:code,p_name:name,p_items:items.map(i=>({card_id:i.card_id,box:i.box,last_seen:i.last_seen}))});
+  if(r.error&&(r.error.code==='PGRST202'||/could not find the function/i.test(r.error.message||''))){
+    let ok=true;
+    for(const i of items){
+      const x=await sb.rpc('flash_student_save',{p_code:code,p_name:name,p_card_id:i.card_id,p_box:i.box,p_last_seen:i.last_seen});
+      if(x.error)return{error:x.error};
+      if(x.data===false)ok=false;
+    }
+    return{data:ok?{status:'ok',legacy:true,accepted:items.length,rejected:0}:{status:'invalid'}};
+  }
+  return r;
+}
+// Envoie les réponses d'un élève par lots de 200. {net:true} = réseau absent ; {status} = refus du serveur.
+async function sendGroup(code,name,items){
+  let last=null;
+  for(const part of FlashOffline.chunk(items,200)){
+    let r;
+    try{r=await syncRpc(code,name,part)}catch(e){r={error:e}}
+    if(r.error)return FlashOffline.isNetworkError(r.error)?{net:true}:{error:r.error};
+    const d=r.data;
+    if(!d||d.status!=='ok')return{status:(d&&d.status)||'invalid'};
+    await delSent(part);last=d;
+  }
+  return{status:'ok',data:last};
+}
+function scheduleFlush(ms){clearTimeout(flushTimer);flushTimer=setTimeout(flushOutbox,ms==null?1500:ms)}
+async function flushOutbox(){
+  if(flushing)return;
+  flushing=true;
+  try{
+    // Élève en cours
+    if(isStudent&&sCodeStr){
+      const items=await pendingFor(curKey());offState.pending=items.length;
+      if(items.length&&navigator.onLine){
+        const r=await sendGroup(sCodeStr,sName,items);
+        if(r.net)offState.online=false;
+        else if(r.error){if(!problemToast){problemToast=true;toast('Envoi impossible : '+r.error.message)}}
+        else if(r.status!=='ok'){
+          offState.problem=r.status;
+          if(!problemToast){problemToast=true;toast('Le code de classe n\'est plus valide : tes réponses restent sur cet appareil. Prévenir l\'enseignant.')}
+        }else{
+          offState.online=true;offState.problem=null;offState.syncedAt=Date.now();
+          if(r.data)adoptServer(r.data);
+        }
+        offState.pending=(await pendingFor(curKey())).length;
+      }
+    }
+    // Autres élèves ayant des réponses en attente sur cet appareil (fermeture de l'app avant l'envoi)
+    if(navigator.onLine){
+      const groups={};
+      for(const i of await dbAll('outbox'))if(!isStudent||i.sk!==curKey())(groups[i.sk]=groups[i.sk]||[]).push(i);
+      for(const sk in groups){const g=groups[sk];const r=await sendGroup(g[0].code,g[0].name,g);if(r.net)break}
+    }
+  }catch(e){console.warn('[FlashPLAI] synchro :',e)}
+  finally{
+    flushing=false;renderSyncBadge();
+    if(isStudent&&offState.pending&&!offState.problem)scheduleFlush(30000);
+  }
+}
+// Le serveur renvoie le paquet et la progression à jour : adopter les boîtes plus récentes (autre appareil) et garder une copie
+function adoptServer(d){
+  if(!d||!d.deck)return;
+  if(typeof studyCards!=='undefined'&&Array.isArray(studyCards))for(const u of FlashOffline.serverNewer(studyCards,d.progress)){
+    const c=studyCards.find(x=>x.id===u.id);if(c){c.box=u.box;c.lastSeen=u.lastSeen}
+  }
+  saveLocalDeck(d).catch(()=>{});
+}
+async function saveLocalDeck(payload){
+  const key=curKey();const old=await dbGet('decks',key).catch(()=>null);
+  await dbPut('decks',{key,code:sCodeStr,name:sName,payload,savedAt:Date.now(),preparedAt:old?old.preparedAt:null,stats:old?old.stats:null});
+}
+// Bouton « Préparer pour le hors ligne » : copie du paquet (déjà faite à l'entrée), images distantes, formules
+async function prepareOffline(opts){
+  const silent=opts&&opts.silent;const st=document.getElementById('prep-status');const btn=document.getElementById('btn-prep');
+  const say=t=>{if(st)st.textContent=t};
+  if(!isStudent)return;
+  if(!navigator.onLine){if(!silent)say('Pas de connexion : la préparation se fait en ligne.');return}
+  if(btn)btn.disabled=true;
+  if(!silent)say('Préparation en cours…');
+  try{
+    const loc=await dbGet('decks',curKey());
+    if(!loc){say('');return}
+    const cards=loc.payload.cards||[];
+    let bytes=JSON.stringify(loc.payload).length,ok=0,fail=0;
+    const urls=FlashOffline.imageUrlsOf(cards);
+    const cache=window.caches?await caches.open('flashplai-img-v1'):null;
+    for(const u of urls){
+      try{
+        if(!cache)throw new Error('cache indisponible');
+        let m=await cache.match(u);
+        if(!m){const r=await fetch(u,{mode:'cors'});if(!r.ok)throw new Error('http '+r.status);await cache.put(u,r);m=await cache.match(u)}
+        bytes+=(await m.blob()).size;ok++;
+      }catch{fail++}
+    }
+    if(FlashOffline.hasFormula(cards)){try{await loadKatex()}catch{}}
+    try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch{}
+    loc.preparedAt=Date.now();loc.stats={cards:cards.length,images:ok,imagesFailed:fail,bytes};
+    await dbPut('decks',loc);
+    say('Prêt pour le hors ligne : '+cards.length+' carte'+(cards.length>1?'s':'')+(urls.length?', '+ok+' image'+(ok>1?'s':''):'')+', environ '+FlashOffline.fmtSize(bytes)+'.'+(fail?' '+fail+' image'+(fail>1?'s':'')+' ne sera'+(fail>1?'ont':'')+' pas disponible'+(fail>1?'s':'')+' hors ligne.':''));
+  }catch(e){say('Préparation impossible : '+(e&&e.message||e))}
+  finally{if(btn)btn.disabled=false}
+}
+window.addEventListener('online',()=>{offState.online=true;renderSyncBadge();flushOutbox()});
+window.addEventListener('offline',()=>{offState.online=false;renderSyncBadge()});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&navigator.onLine)scheduleFlush(500)});
+
 function normId(s){return(s||'').replace(/\s+/g,' ').trim().slice(0,30)}
 async function studentLogin(){
   const name=normId(document.getElementById('sname').value);
@@ -695,29 +865,58 @@ async function studentLogin(){
   const btn=document.getElementById('sbtn2');
   btn.disabled=true;btn.innerHTML='<div class="spin"></div>';
   try{
-    // Le serveur vérifie le code (actif, non expiré) et ne renvoie que le paquet et la progression de cet élève.
-    // Il reprend aussi l'orthographe déjà enregistrée (Sophie / sophie).
-    const{data,error}=await sb.rpc('flash_student_open',{p_code:code,p_name:name});
-    if(error){toast('Erreur : '+error.message);return}
-    if(!data){toast('Code invalide ou expiré');return}
-    sName=data.student_name;sCodeId=data.code_id;sCodeStr=code;progressLost=false;
+    const sk=FlashOffline.studentKey(code,name);
+    let pend=[];try{pend=await pendingFor(sk)}catch{}
+    let data=null,fromLocal=false,netDown=false;
+    // 1. Réponses en attente : on les envoie d'abord (le serveur renvoie alors le paquet à jour)
+    if(pend.length){
+      const r=await sendGroup(code,name,pend);
+      if(r.net)netDown=true;
+      else if(r.error){toast('Erreur : '+r.error.message);return}
+      else if(r.status!=='ok'){toast('Code invalide ou expiré');return}
+      else if(r.data&&r.data.grace){toast('Ce code a expiré : tes réponses ont été envoyées, mais tu ne peux plus réviser avec lui.');return}
+      else if(r.data&&r.data.deck)data=r.data;
+    }
+    // 2. Entrée normale : le serveur vérifie le code (actif, non expiré) et ne renvoie que le paquet et la progression de CET élève
+    if(!data&&!netDown){
+      let r;try{r=await sb.rpc('flash_student_open',{p_code:code,p_name:name})}catch(e){r={error:e}}
+      if(r.error){
+        if(FlashOffline.isNetworkError(r.error))netDown=true;
+        else{toast('Erreur : '+r.error.message);return}
+      }else if(!r.data){toast('Code invalide ou expiré');return}
+      else data=r.data;
+    }
+    // 3. Pas de réseau : copie de cet appareil (créée à une entrée précédente en ligne)
+    let localPend=pend;
+    if(!data){
+      let loc=null;try{loc=await dbGet('decks',sk)}catch{}
+      if(!loc){toast('Pas de connexion. La première entrée avec ce code doit se faire en ligne, une fois, sur cet appareil.');return}
+      data=loc.payload;fromLocal=true;
+      try{localPend=await pendingFor(sk)}catch{}
+    }
+    sName=data.student_name;sCodeId=data.code_id;sCodeStr=code;progressLost=false;problemToast=false;
+    offState={online:!fromLocal,pending:fromLocal?localPend.length:0,syncedAt:fromLocal?null:Date.now(),problem:null};
     sessionStorage.setItem('ffwb_s',JSON.stringify({name:sName,codeId:data.code_id,code}));
     rememberProfile(sName,code);
-    openStudentDeck(data);
+    if(!fromLocal){try{await saveLocalDeck(data)}catch{}}
+    openStudentDeck(data,localPend);
+    if(fromLocal)toast('Hors ligne : les cartes de cet appareil sont utilisées. Les réponses seront envoyées à la prochaine connexion.');
+    else prepareOffline({silent:true});
   }catch(e){toast('Erreur : '+e.message)}
   finally{btn.disabled=false;btn.textContent='Accéder aux cartes'}
 }
 
-function openStudentDeck(payload){
+function openStudentDeck(payload,pending){
   const deck=payload.deck;
   if(!deck){toast('Paquet introuvable');return}
-  const pm={};(payload.progress||[]).forEach(p=>{pm[p.card_id]={box:p.box,lastSeen:p.last_seen}});
+  const pm=FlashOffline.currentBoxes(payload.progress,pending);
   const d={id:deck.id,name:deck.name,langQ:deck.lang_q,langA:deck.lang_a,tts:deck.tts,shuffle:deck.shuffle||'leitner',
     noSkipBox:!!deck.no_skip_box,weightedReview:!!deck.weighted_review,spaced:!!deck.spaced,
     cards:(payload.cards||[]).map(c=>mapCard(c,pm[c.id]))};
   isStudent=true;
   document.getElementById('student-bar').style.display='block';
-  document.getElementById('student-bar').innerHTML=`<span class="student-badge">Élève : ${esc(sName)} · Code ${esc(sCodeStr)}</span>`;
+  document.getElementById('student-bar').innerHTML=`<span class="student-badge">Élève : ${esc(sName)} · Code ${esc(sCodeStr)}</span><span class="sync-badge" id="sync-badge" role="status" aria-live="polite"></span><div style="margin-top:8px"><button class="btn" id="btn-prep" onclick="prepareOffline()">Préparer pour le hors ligne</button> <small class="help" id="prep-status"></small></div>${window.matchMedia&&matchMedia('(display-mode: standalone)').matches?'':'<small class="help">iPad ou iPhone : ajouter l\'app à l\'écran d\'accueil pour garder les cartes.</small>'}`;
+  renderSyncBadge();
   openStudyCommon(d);
 }
 
@@ -791,7 +990,9 @@ async function saveDeckCloud(name,langQ,langA,tts,shuffle,cards,noSkipBox,weight
 
 async function updateProgress(cardId,box,lastSeen){
   if(isStudent){
-    // Enregistrement par fonction serveur : refusé si le code a expiré ou a été désactivé entre-temps
+    // Réponse écrite sur l'appareil puis envoyée dès que possible (hors ligne : à la prochaine connexion)
+    try{await queueAnswer(cardId,box,lastSeen||new Date().toISOString());return}catch(e){console.warn('[FlashPLAI] file locale indisponible, envoi direct :',e)}
+    // Repli sans stockage local : enregistrement par fonction serveur : refusé si le code a expiré ou a été désactivé entre-temps
     const{data:ok,error:err}=await sb.rpc('flash_student_save',{p_code:sCodeStr,p_name:sName,p_card_id:cardId,p_box:box,p_last_seen:lastSeen||new Date().toISOString()});
     if((err||ok===false)&&!progressLost){progressLost=true;toast('Ta progression n\'est plus enregistrée : le code de classe n\'est plus valide. Préviens ton enseignant.')}
   }else{
@@ -883,7 +1084,7 @@ function studentRow(name,s,total,deck){
     +'<span class="res-mini" title="'+s.b1+' à revoir, '+s.b2+' presque, '+s.b3+' maîtrisées"><span style="background:#E24B4A;width:'+(s.b1/sum*100)+'%"></span><span style="background:#EF9F27;width:'+(s.b2/sum*100)+'%"></span><span style="background:#1D9E75;width:'+(s.b3/sum*100)+'%"></span></span>'
     +'<span class="res-num"><span style="color:#791F1F">■ '+s.b1+'</span> <span style="color:#633806">■ '+s.b2+'</span> <span style="color:#085041">■ '+s.b3+'</span></span>'
     +'<span class="res-num">'+done+'/'+total+' · '+lastStr+'</span></summary>'
-    +'<div class="res-body">'+detailLists(deck,s)+'</div></details>';
+    +'<div class="res-body"><p class="help" style="margin-top:8px">Dernière synchronisation de l\'appareil de l\'élève : '+(s.sync?s.sync.toLocaleString('fr-BE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'–')+'</p>'+detailLists(deck,s)+'</div></details>';
 }
 function switchResTab(n){
   ['eleves','cartes'].forEach(m=>{const e=document.getElementById('res-pane-'+m);if(e)e.style.display=m===n?'block':'none'});
@@ -895,7 +1096,7 @@ async function openResults(deckId,deckName){
   showV('vr');
   const{data:codeData}=await sb.from('class_codes').select('id,code').eq('deck_id',deckId).eq('active',true).maybeSingle();
   if(!codeData){document.getElementById('results-content').innerHTML='<div class="empty"><div style="font-size:32px">📊</div><p>Aucun code de classe actif pour ce paquet.</p></div>';return}
-  const{data:progressAll}=await sb.from('student_progress').select('student_name,card_id,box,last_seen').eq('code_id',codeData.id);
+  const{data:progressAll}=await sb.from('student_progress').select('student_name,card_id,box,last_seen,updated_at').eq('code_id',codeData.id);
   // Ignore la progression de cartes supprimées (lignes orphelines) : sinon « 7/6 » cartes travaillées
   const deck0=decks.find(d=>d.id===deckId);
   const validIds=deck0?new Set(deck0.cards.map(c=>c.id)):null;
@@ -907,12 +1108,14 @@ async function openResults(deckId,deckName){
   const deck=decks.find(d=>d.id===deckId);const total=deck?.cards.length||0;
   const students={};
   for(const p of progress){
-    if(!students[p.student_name])students[p.student_name]={b1:0,b2:0,b3:0,last:null,c1:[],c2:[]};
+    if(!students[p.student_name])students[p.student_name]={b1:0,b2:0,b3:0,last:null,sync:null,c1:[],c2:[]};
     if(p.box===1){students[p.student_name].b1++;students[p.student_name].c1.push(p.card_id)}
     else if(p.box===2){students[p.student_name].b2++;students[p.student_name].c2.push(p.card_id)}
     else students[p.student_name].b3++;
     const d=new Date(p.last_seen);
     if(!students[p.student_name].last||d>students[p.student_name].last)students[p.student_name].last=d;
+    const sy=p.updated_at?new Date(p.updated_at):null;
+    if(sy&&(!students[p.student_name].sync||sy>students[p.student_name].sync))students[p.student_name].sync=sy;
   }
   const cardBoxes={};
   for(const p of progress){
@@ -924,7 +1127,7 @@ async function openResults(deckId,deckName){
   let html='<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap"><div style="background:var(--tl);border:.5px solid #9FE1CB;border-radius:var(--rm);padding:8px 14px;font-size:14px;color:#085041">Code : <strong>'+codeData.code+'</strong></div><div style="font-size:14px;color:var(--tx2)">'+nb+' élève'+(nb>1?'s':'')+' · '+total+' cartes</div></div>';
   html+='<div class="tabs" id="res-tabs" role="tablist"><button class="tab on" role="tab" aria-selected="true" data-rt="eleves" onclick="switchResTab(\'eleves\')">Élèves ('+nb+')</button><button class="tab" role="tab" aria-selected="false" data-rt="cartes" onclick="switchResTab(\'cartes\')">Cartes difficiles ('+hardCards.length+')</button></div><div id="res-pane-eleves">';
   const sorted=Object.entries(students).sort((a,b)=>b[1].b3-a[1].b3);
-  html+='<p class="help" style="margin-bottom:8px">Une ligne par élève : ■ rouge = à revoir, ■ orange = presque, ■ vert = maîtrisées, puis cartes travaillées sur le total et date de la dernière révision. Cliquer sur une ligne pour voir les cartes concernées.</p>';
+  html+='<p class="help" style="margin-bottom:8px">Une ligne par élève : ■ rouge = à revoir, ■ orange = presque, ■ vert = maîtrisées, puis cartes travaillées sur le total et date de la dernière révision. Cliquer sur une ligne pour voir les cartes concernées et la date de la dernière synchronisation. Les réponses faites hors ligne apparaissent ici après la prochaine connexion de l\'élève.</p>';
   for(const[name,s] of sorted)html+=studentRow(name,s,total,deck);
   html+='</div><div id="res-pane-cartes" style="display:none">';
   html+='<p class="help" style="margin-bottom:10px">Une carte est « difficile » quand au moins la moitié des élèves qui l\'ont travaillée la laissent en boîte « À revoir ». Bon point de départ pour une remédiation en classe.</p>';
@@ -1563,6 +1766,7 @@ function restartStudy(){buildQ();document.getElementById('cview').style.display=
   populateLangSelects();
   try{if(localStorage.getItem('flashplai_dys')==='1')setDys(true)}catch{}
   renderProfiles();
+  setTimeout(flushOutbox,1500);
   document.getElementById('pane-reglages').addEventListener('change',updateSummary);
   if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('/sw.js').catch(()=>{});
   if(window.speechSynthesis){window.speechSynthesis.getVoices();window.speechSynthesis.onvoiceschanged=()=>{}}
