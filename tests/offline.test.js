@@ -92,4 +92,24 @@ t('bandeau : quatre états',()=>{
   assert.ok(/non valide/.test(F.badgeText({online:true,pending:3,problem:'expired'})));
 });
 
+t('modification : casse, espaces, ponctuation finale = rien de visible',()=>{
+  assert.strictEqual(F.changeKind('Capitale de la Belgique ?','Bruxelles','capitale  de la Belgique','Bruxelles.'),'same');
+});
+t('modification : faute de frappe = correction',()=>{
+  assert.strictEqual(F.changeKind('Capitale ?','Bruxelle','Capitale ?','Bruxelles'),'fix');
+});
+t('modification : un chiffre change = sens changé',()=>{
+  assert.strictEqual(F.changeKind('Année de la bataille ?','1914','Année de la bataille ?','1941'),'meaning');
+});
+t('modification : mot remplacé = sens changé',()=>{
+  assert.strictEqual(F.changeKind('Animal ?','chat','Animal ?','chien'),'meaning');
+});
+t('modification : petite retouche dans une longue phrase = correction',()=>{
+  const l='Le verbe s\'accorde avec son sujet, qui peut se trouver loin du verbe dans la phrase';
+  assert.strictEqual(F.changeKind('Règle ?',l,'Règle ?',l.replace('loin','éloigné')),'fix');
+});
+t('modification : réponse entièrement réécrite = sens changé',()=>{
+  assert.strictEqual(F.changeKind('Q','Le soleil se lève à l\'est','Q','Paris est une ville'),'meaning');
+});
+
 console.log('\n'+n+' tests passés'+(process.exitCode?' — AVEC ÉCHECS':''));

@@ -3,7 +3,7 @@
 // - Les données (Supabase) ne passent JAMAIS par ce cache : elles sont gardées dans IndexedDB par l'app (index.html).
 // - Les images d'autres sites (ARASAAC...) sont gardées par l'app dans IMG (bouton « Préparer pour le hors ligne ») ;
 //   ce worker les relit de IMG avant d'aller sur le réseau.
-const CACHE='flashplai-shell-v2';
+const CACHE='flashplai-shell-v3';
 const IMG='flashplai-img-v1';
 const FONTS=['AMS-Regular','Caligraphic-Bold','Caligraphic-Regular','Fraktur-Bold','Fraktur-Regular','Main-Bold','Main-BoldItalic','Main-Italic','Main-Regular','Math-BoldItalic','Math-Italic','SansSerif-Bold','SansSerif-Italic','SansSerif-Regular','Script-Regular','Size1-Regular','Size2-Regular','Size3-Regular','Size4-Regular','Typewriter-Regular'];
 const SHELL=['/','/index.html','/config.js','/offline-core.js','/plai-logo.jpg','/icon-192.png','/icon-512.png','/manifest.webmanifest',

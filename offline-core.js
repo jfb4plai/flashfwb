@@ -88,5 +88,34 @@
     return 'En ligne';
   }
 
-  return{studentKey,outboxKey,newest,currentBoxes,serverNewer,chunk,isNetworkError,imageUrlsOf,fmtSize,hasFormula,badgeText};
+  // Comparaison d'une carte avant/après modification, pour PRÉ-COCHER la remise à zéro (l'enseignant décide).
+  // Renvoie 'same' (rien de visible : casse, espaces, ponctuation finale), 'fix' (correction probable)
+  // ou 'meaning' (sens probablement changé : chiffre différent, mot remplacé, texte très différent).
+  function normText(s){return String(s||'').trim().replace(/\s+/g,' ').replace(/[\s.!?…:;,]+$/,'').toLowerCase()}
+  function lev(a,b){
+    if(a===b)return 0;if(!a.length)return b.length;if(!b.length)return a.length;
+    let prev=[];for(let j=0;j<=b.length;j++)prev[j]=j;
+    for(let i=1;i<=a.length;i++){
+      const cur=[i];
+      for(let j=1;j<=b.length;j++)cur[j]=Math.min(prev[j]+1,cur[j-1]+1,prev[j-1]+(a[i-1]===b[j-1]?0:1));
+      prev=cur;
+    }
+    return prev[b.length];
+  }
+  function digitsOf(s){return (String(s||'').match(/\d+/g)||[]).join(',')}
+  function fieldChange(a,b){
+    const x=normText(a),y=normText(b);
+    if(x===y)return 'same';
+    if(digitsOf(a)!==digitsOf(b))return 'meaning';
+    const d=lev(x,y),r=d/Math.max(x.length,y.length,1);
+    if(d<=2)return 'fix';
+    return r>=0.2?'meaning':'fix';
+  }
+  function changeKind(oldQ,oldA,newQ,newA){
+    const q=fieldChange(oldQ,newQ),a=fieldChange(oldA,newA);
+    if(q==='same'&&a==='same')return 'same';
+    return (q==='meaning'||a==='meaning')?'meaning':'fix';
+  }
+
+  return{studentKey,outboxKey,newest,currentBoxes,serverNewer,chunk,isNetworkError,imageUrlsOf,fmtSize,hasFormula,badgeText,changeKind};
 });

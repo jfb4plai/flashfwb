@@ -130,6 +130,8 @@ body.dys .fctxt{line-height:1.7;font-size:20px}
 .auth-box label{font-size:16px;font-weight:600;color:var(--tx)}
 .auth-box input{font-size:16px;padding:10px 12px}
 .help{display:block;font-size:16px;color:var(--tx2);margin-top:4px}
+.kbhint{display:none;font-size:16px;color:var(--tx2);text-align:center;margin-top:8px}
+@media (hover:hover) and (pointer:fine){.kbhint{display:block}}
 .pill{display:inline-block;background:var(--tl);color:#085041;border:1px solid #9FE1CB;border-radius:999px;padding:4px 14px;font-size:16px;font-weight:600;margin:14px 0}
 .landing-h{font-size:28px;line-height:1.2;margin-bottom:10px}.landing-h b{color:var(--a)}
 .landing-lead{font-size:17px;color:var(--tx2);max-width:560px}
@@ -491,7 +493,7 @@ body.editing .dys-fab{bottom:70px}
 <div class="modal-overlay hidden" id="chg-modal">
   <div class="modal" style="max-width:520px">
     <h3 style="font-size:16px;font-weight:600;margin-bottom:4px">Cartes modifiées déjà travaillées par des élèves</h3>
-    <p class="help" style="font-size:14px;color:var(--tx2);margin-bottom:10px">Cocher les cartes dont le <b>sens a changé</b> : leur progression sera remise à zéro pour tous les élèves (elles repartent en « À revoir »). Laisser décoché pour une simple correction d'orthographe : les élèves gardent leur progression.</p>
+    <p class="help" style="font-size:14px;color:var(--tx2);margin-bottom:10px">Cocher les cartes dont le <b>sens a changé</b> : leur progression sera remise à zéro pour tous les élèves (elles repartent en « À revoir »). Laisser décoché pour une simple correction d'orthographe : les élèves gardent leur progression. Les cases sont <b>pré-cochées d'après une comparaison automatique</b> (chiffre différent, mot remplacé, texte très différent) : c'est une suggestion, vérifiez chaque carte. Un changement de majuscule, d'espace ou de point final n'est pas listé.</p>
     <div id="chg-list"></div>
     <div style="display:flex;gap:8px;margin-top:12px">
       <button class="btn bp" style="flex:1" onclick="chgDone(true)">Enregistrer</button>
@@ -1230,21 +1232,23 @@ let origSnap={},chgResolve=null;
 function snapCards(list){origSnap={};(list||[]).forEach(c=>{if(c.id)origSnap[c.id]={q:c.question,a:c.answer}})}
 async function changedWithProgress(cards){
   if(!editId)return[];
-  const ch=cards.filter(c=>c.id&&origSnap[c.id]&&(origSnap[c.id].q!==c.question||origSnap[c.id].a!==c.answer));
+  // 'same' = seulement casse, espaces ou ponctuation finale : rien à demander
+  const kind=c=>FlashOffline.changeKind(origSnap[c.id].q,origSnap[c.id].a,c.question,c.answer);
+  const ch=cards.filter(c=>c.id&&origSnap[c.id]&&(origSnap[c.id].q!==c.question||origSnap[c.id].a!==c.answer)&&kind(c)!=='same');
   if(!ch.length)return[];
   const{data,error}=await sb.from('student_progress').select('card_id').eq('deck_id',editId).in('card_id',ch.map(c=>c.id));
   if(error||!data||!data.length)return[];
   const cnt={};data.forEach(r=>{cnt[r.card_id]=(cnt[r.card_id]||0)+1});
-  return ch.filter(c=>cnt[c.id]).map(c=>({c,n:cnt[c.id],old:origSnap[c.id]}));
+  return ch.filter(c=>cnt[c.id]).map(c=>({c,n:cnt[c.id],old:origSnap[c.id],kind:kind(c)}));
 }
 function askReset(items){
   const cut=t=>{t=t||'';return t.length>70?t.slice(0,70)+'…':t};
   document.getElementById('chg-list').innerHTML=items.map((it,i)=>
     '<label style="display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:.5px solid var(--bd);font-size:15px;cursor:pointer">'
-    +'<input type="checkbox" data-id="'+esc(it.c.id)+'" style="margin-top:4px;width:20px;height:20px;flex:none">'
+    +'<input type="checkbox" data-id="'+esc(it.c.id)+'"'+(it.kind==='meaning'?' checked':'')+' style="margin-top:4px;width:20px;height:20px;flex:none">'
     +'<span><span style="color:var(--tx3);text-decoration:line-through">'+esc(cut(it.old.q))+' → '+esc(cut(it.old.a))+'</span><br>'
     +esc(cut(it.c.question))+' → '+esc(cut(it.c.answer))
-    +'<br><span style="font-size:14px;color:var(--tx2)">'+it.n+' réponse'+(it.n>1?'s':'')+' d\'élèves enregistrée'+(it.n>1?'s':'')+'</span></span></label>'
+    +'<br><span style="font-size:14px;color:var(--tx2)"><b>'+(it.kind==='meaning'?'Le sens semble changé (case cochée d\'avance)':'Simple correction probable (case décochée)')+'</b> · '+it.n+' réponse'+(it.n>1?'s':'')+' d\'élèves enregistrée'+(it.n>1?'s':'')+'</span></span></label>'
   ).join('');
   document.getElementById('chg-modal').classList.remove('hidden');
   return new Promise(res=>{chgResolve=res});
@@ -1716,7 +1720,7 @@ function renderStudy(){
   const aImg=card.aImg||card.aImgUrl?'<img src="'+(card.aImg||card.aImgUrl)+'" class="fcimg" alt="">':'';
   const qAbt=card.qAud?'<button class="fcplay" onclick="event.stopPropagation();playAud(\'q\')">▶ Écouter</button>':'<button class="fcplay" onclick="event.stopPropagation();speakSide(\'q\')">▶ Prononcer</button>';
   const aAbt=card.aAud?'<button class="fcplay" onclick="event.stopPropagation();playAud(\'a\')">▶ Écouter</button>':'<button class="fcplay" onclick="event.stopPropagation();speakSide(\'a\')">▶ Prononcer</button>';
-  document.getElementById('scontent').innerHTML='<div class="fcw" onclick="flipCard()"><div class="fc" id="fc"><div class="fcf"><div class="fclbl">Question</div>'+qImg+'<div class="fctxt">'+rich(card.question)+'</div>'+qAbt+'<div class="fchint">Clique pour voir la réponse</div></div><div class="fcf fcback"><div class="fclbl">Réponse</div>'+aImg+'<div class="fctxt">'+rich(card.answer)+'</div>'+aAbt+'</div></div></div><div id="sbtn" style="text-align:center"><button class="btn bp" onclick="flipCard()" style="padding:10px 24px">Voir la réponse</button></div><div id="rbtn" style="display:none"><div style="font-size:14px;color:var(--tx3);text-align:center;margin-bottom:8px">Comment c\'était ?</div><div class="sr"><button class="btn br" onclick="rate(1)">A revoir<small>Difficile</small></button><button class="btn" onclick="rate(2)">Presque<small>Hésitation</small></button><button class="btn bt" onclick="rate(3)">Je sais !<small>Maîtrisé</small></button></div></div>';
+  document.getElementById('scontent').innerHTML='<div class="fcw" onclick="flipCard()"><div class="fc" id="fc"><div class="fcf"><div class="fclbl">Question</div>'+qImg+'<div class="fctxt">'+rich(card.question)+'</div>'+qAbt+'<div class="fchint">Clique pour voir la réponse</div></div><div class="fcf fcback"><div class="fclbl">Réponse</div>'+aImg+'<div class="fctxt">'+rich(card.answer)+'</div>'+aAbt+'</div></div></div><div id="sbtn" style="text-align:center"><button class="btn bp" onclick="flipCard()" aria-keyshortcuts="Space Enter" style="padding:10px 24px">Voir la réponse</button><div class="kbhint">Clavier : Espace pour voir la réponse</div></div><div id="rbtn" style="display:none"><div style="font-size:14px;color:var(--tx3);text-align:center;margin-bottom:8px">Comment c\'était ?</div><div class="sr"><button class="btn br" aria-keyshortcuts="1" onclick="rate(1)">A revoir<small>Difficile</small></button><button class="btn" aria-keyshortcuts="2" onclick="rate(2)">Presque<small>Hésitation</small></button><button class="btn bt" aria-keyshortcuts="3" onclick="rate(3)">Je sais !<small>Maîtrisé</small></button></div><div class="kbhint">Clavier : 1 = A revoir · 2 = Presque · 3 = Je sais</div></div>';
 }
 
 function playAud(side){if(sAudio){sAudio.pause();sAudio=null}const src=side==='q'?window._sc?.qAud:window._sc?.aAud;if(!src)return;sAudio=new Audio(src);sAudio.play().catch(()=>{})}
@@ -1730,7 +1734,24 @@ function flipCard(){
   stopStudyAudio();
 }
 
+let rateBusy=false;
 async function rate(r){
+  if(rateBusy)return;rateBusy=true;
+  try{await rateInner(r)}finally{rateBusy=false}
+}
+// Clavier : Espace ou Entrée = voir la réponse ; 1, 2, 3 = noter (ignoré dans un champ, une fenêtre ouverte ou sur un bouton)
+document.addEventListener('keydown',e=>{
+  if(e.repeat||e.ctrlKey||e.metaKey||e.altKey)return;
+  if(!document.getElementById('vs').classList.contains('active'))return;
+  if(document.querySelector('.modal-overlay:not(.hidden)'))return;
+  const t=e.target,tag=t&&t.tagName;
+  if(/^(INPUT|TEXTAREA|SELECT|BUTTON|A)$/.test(tag)||(t&&t.isContentEditable))return;
+  if(!document.getElementById('fc'))return;
+  const revealed=document.getElementById('rbtn').style.display==='block';
+  if(!revealed&&(e.key===' '||e.key==='Enter')){e.preventDefault();flipCard()}
+  else if(revealed&&(e.key==='1'||e.key==='2'||e.key==='3')){e.preventDefault();rate(+e.key)}
+});
+async function rateInner(r){
   const card=studyCards[studyQueue[studyIdx]];
   const noSkip=studyDeck?.noSkipBox||false;
   let newBox=r;
